@@ -1,0 +1,8 @@
+name: ETCS
+depend:
+  standard-library-2.1.1
+include: src
+flags:
+  --safe
+  --cubical-compatible
+  --hidden-argument-puns
