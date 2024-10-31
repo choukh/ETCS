@@ -4,6 +4,16 @@ open import MetaLogic
 ```
 
 ```agda
+unique : {A : Set} (P : A → Set) → Set
+unique P = ∀ {a b} → P a → P b → a ≡ b
+```
+
+```agda
+universal : {A : Set} (B : A → Set) (P : ∀ {x} → B x → Set) → Set
+universal B P = ∀ x → Σ (B x) λ a → (b : B x) → P b → a ≡ b
+```
+
+```agda
 -- 2.1 The data
 record Data : Set₁ where
   field
@@ -25,12 +35,20 @@ module _ (D : Data) where
 ```
 
 ```agda
+  -- Definition 2.3.1
+  isTerminal : CSet → Set
+  isTerminal T = universal (_⇒ T) (λ _ → ⊤)
+```
+
+```agda
   record Axiom : Set where
     field
       -- Axiom 1
-      Assoc : (h ∘ g) ∘ f ≡ h ∘ (g ∘ f)
-      Idˡ : id ∘ f ≡ f
-      Idʳ : f ∘ id ≡ f
+      AxAss : (h ∘ g) ∘ f ≡ h ∘ (g ∘ f)
+      AxIdˡ : id ∘ f ≡ f
+      AxIdʳ : f ∘ id ≡ f
+      -- Axiom 2
+      AxTml : Σ CSet isTerminal
 ```
 
 ```agda
@@ -41,13 +59,13 @@ module _ (D : Data) where
 
 ```agda
     -- Lemma 2.2.4
-    unique-inverse : isInv f g → isInv f g′ → g ≡ g′
-    unique-inverse {f} {g} {g′} (_ , p) (q , _) = begin
-      g             ≡˘⟨ Idʳ ⟩
+    unique-isInv : unique (isInv f)
+    unique-isInv {f} {a = g} {b = g′} (_ , p) (q , _) = begin
+      g             ≡˘⟨ AxIdʳ ⟩
       g ∘ id        ≡˘⟨ cong (g ∘_) q ⟩
-      g ∘ (f ∘ g′)  ≡˘⟨ Assoc ⟩
+      g ∘ (f ∘ g′)  ≡˘⟨ AxAss ⟩
       (g ∘ f) ∘ g′  ≡⟨ cong (_∘ g′) p ⟩
-      id ∘ g′       ≡⟨ Idˡ ⟩
+      id ∘ g′       ≡⟨ AxIdˡ ⟩
       g′            ∎ where open ≡-Reasoning
 ```
 
@@ -60,22 +78,22 @@ module _ (D : Data) where
 ```agda
     -- Lemma 2.2.6
     isIso-id : isIso id⟨ X ⟩
-    isIso-id = id , Idˡ , Idˡ
+    isIso-id = id , AxIdˡ , AxIdˡ
 
     isIso-∘ : isIso f → isIso g → isIso (g ∘ f)
     isIso-∘ {f} {g} (f⁻¹ , ff⁻¹ , f⁻¹f) (g⁻¹ , gg⁻¹ , g⁻¹g) = f⁻¹ ∘ g⁻¹ , p , q where
       p =                       begin
-        (g ∘ f) ∘ (f⁻¹ ∘ g⁻¹)   ≡⟨ Assoc ⟩
-        g ∘ (f ∘ (f⁻¹ ∘ g⁻¹))   ≡˘⟨ cong (g ∘_) Assoc ⟩
+        (g ∘ f) ∘ (f⁻¹ ∘ g⁻¹)   ≡⟨ AxAss ⟩
+        g ∘ (f ∘ (f⁻¹ ∘ g⁻¹))   ≡˘⟨ cong (g ∘_) AxAss ⟩
         g ∘ ((f ∘ f⁻¹) ∘ g⁻¹)   ≡⟨ cong (g ∘_) $ cong (_∘ g⁻¹) ff⁻¹ ⟩
-        g ∘ (id ∘ g⁻¹)          ≡⟨ cong (g ∘_) Idˡ ⟩
+        g ∘ (id ∘ g⁻¹)          ≡⟨ cong (g ∘_) AxIdˡ ⟩
         g ∘ g⁻¹                 ≡⟨ gg⁻¹ ⟩
         id                      ∎ where open ≡-Reasoning
       q =                       begin
-        (f⁻¹ ∘ g⁻¹) ∘ (g ∘ f)   ≡⟨ Assoc ⟩
-        f⁻¹ ∘ (g⁻¹ ∘ (g ∘ f))   ≡˘⟨ cong (f⁻¹ ∘_) Assoc ⟩
+        (f⁻¹ ∘ g⁻¹) ∘ (g ∘ f)   ≡⟨ AxAss ⟩
+        f⁻¹ ∘ (g⁻¹ ∘ (g ∘ f))   ≡˘⟨ cong (f⁻¹ ∘_) AxAss ⟩
         f⁻¹ ∘ ((g⁻¹ ∘ g) ∘ f)   ≡⟨ cong (f⁻¹ ∘_) $ cong (_∘ f) g⁻¹g ⟩
-        f⁻¹ ∘ (id ∘ f)          ≡⟨ cong (f⁻¹ ∘_) Idˡ ⟩
+        f⁻¹ ∘ (id ∘ f)          ≡⟨ cong (f⁻¹ ∘_) AxIdˡ ⟩
         f⁻¹ ∘ f                 ≡⟨ f⁻¹f ⟩
         id                      ∎ where open ≡-Reasoning
 
@@ -100,3 +118,19 @@ module _ (D : Data) where
     ≅-sym : X ≅ Y → Y ≅ X
     ≅-sym (f , i@(f⁻¹ , _)) = f⁻¹ , isIso-⁻¹ i
 ```
+
+```agda
+    isoInvariant : (P : CSet → Set) → Set
+    isoInvariant P = ∀ {X Y} → P X → X ≅ Y → P Y
+
+    isoUnique : (P : CSet → Set) → Set
+    isoUnique P = ∀ {X Y} → P X → P Y → X ≅ Y
+```
+
+```agda
+    -- Lemma 2.3.3
+    isoInvariant-isTerminal : isoInvariant isTerminal
+    isoInvariant-isTerminal = {!   !}
+```
+(j , _) t X with t X
+    ... | f , t = {!   !}
