@@ -1,21 +1,28 @@
 ```agda
 module ETCS where
-open import MetaLogic
+
+open import Level public using (Level)
+open import Data.Unit public using (⊤; tt)
+open import Data.Product public
+  renaming (_×_ to _∧_) using (Σ; _,_; proj₁; proj₂)
+open import Function using (_$_) public
+open import Relation.Binary.PropositionalEquality public
 ```
 
 ```agda
-unique : {A : Set} (P : A → Set) → Set
+variable ℓ ℓ′ ℓ′′ : Level
+
+unique : {A : Set ℓ} (P : A → Set ℓ′) → Set _
 unique P = ∀ {a b} → P a → P b → a ≡ b
-```
 
-```agda
-universal : {A : Set} (B : A → Set) (P : ∀ {x} → B x → Set) → Set
-universal B P = ∀ x → Σ (B x) λ a → (b : B x) → P b → a ≡ b
+universal : {A : Set ℓ} (B : A → Set ℓ′) (P : ∀ {x} → B x → Set ℓ′′) → Set _
+universal B P = ∀ x → (Σ (B x) P) ∧ unique (P {x})
 ```
 
 ```agda
 -- 2.1 The data
 record Data : Set₁ where
+  infix 5 _∘_
   field
     CSet : Set
     _⇒_ : (X Y : CSet) → Set
@@ -130,7 +137,21 @@ module _ (D : Data) where
 ```agda
     -- Lemma 2.3.3
     isoInvariant-isTerminal : isoInvariant isTerminal
-    isoInvariant-isTerminal = {!   !}
+    isoInvariant-isTerminal {X = T} {Y = T′} tml (j , j⁻¹ , jj⁻¹ , _) X with tml X
+    ... | (f , tt) , f! = (j ∘ f , tt) , λ {f′ g′} _ _ → begin
+      f′                      ≡˘⟨ AxIdˡ ⟩
+      id ∘ f′                 ≡˘⟨ cong (_∘ f′) jj⁻¹ ⟩
+      (j ∘ j⁻¹) ∘ f′          ≡⟨ AxAss ⟩
+      j ∘ (j⁻¹ ∘ f′)          ≡⟨ cong (j ∘_) (f! tt tt) ⟩
+      j ∘ (j⁻¹ ∘ g′)          ≡˘⟨ AxAss ⟩
+      (j ∘ j⁻¹) ∘ g′          ≡⟨ cong (_∘ g′) jj⁻¹ ⟩
+      id ∘ g′                 ≡⟨ AxIdˡ ⟩
+      g′                      ∎ where open ≡-Reasoning
 ```
-(j , _) t X with t X
-    ... | f , t = {!   !}
+
+```agda
+    -- Lemma 2.3.4
+    isoUnique-isTerminal : isoUnique isTerminal
+    isoUnique-isTerminal {X = T} {Y = T′} tml tml′ with tml′ T | tml T′
+    ... | (f , tt) , f! | (g , tt) , g! = f , g , tml′ T′ .proj₂ tt tt , tml T .proj₂ tt tt
+```
