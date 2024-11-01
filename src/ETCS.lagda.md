@@ -43,20 +43,46 @@ module _ (D : Data) where
 ```
 
 ```agda
-  -- Definition 2.3.1
-  isTerminal : CSet → Set
-  isTerminal T = universal (_⇒ T) (λ _ → ⊤)
-```
-
-```agda
   record Axiom : Set where
     field
       -- Axiom 1
       AxAss : (h ∘ g) ∘ f ≡ h ∘ (g ∘ f)
       AxIdˡ : id ∘ f ≡ f
       AxIdʳ : f ∘ id ≡ f
-      -- Axiom 2
-      AxTml : Σ CSet isTerminal
+```
+
+```agda
+    -- Definition 2.3.1
+    isTerminal : CSet → Set
+    isTerminal T = universal (_⇒ T) (λ _ → ⊤)
+
+    -- Axiom 2
+    field AxTml : Σ CSet isTerminal
+```
+
+```agda
+    𝟏 : CSet
+    𝟏 = AxTml .fst
+
+    Elm : CSet → Set
+    Elm = 𝟏 ⇒_
+```
+
+```agda
+    -- Definition 2.3.6
+    ∀[∈]-syntax : (X : CSet) (P : Elm X → Set) → Set
+    ∀[∈]-syntax X P = (x : Elm X) → P x
+
+    infix 1 ∀[∈]-syntax
+    syntax ∀[∈]-syntax X (λ x → A) = ∀[ x ∈ X ] A
+```
+
+```agda
+    _（_） : (f : X ⇒ Y) → ∀[ x ∈ X ] Elm Y
+    f （ x ） = f ∘ x
+
+    -- Axiom 3
+    field AxFunExt : (∀[ x ∈ X ] f （ x ） ≡ g （ x ）) → f ≡ g
 ```
 
 ```agda
@@ -84,6 +110,12 @@ module _ (D : Data) where
 ```
 
 ```agda
+    -- Definition 2.2.8
+    _≅_ : CSet → CSet → Set
+    X ≅ Y = Σ (X ⇒ Y) isIso
+```
+
+```agda
     -- Lemma 2.2.6
     isIso-id : isIso id⟨ X ⟩
     isIso-id = id , AxIdˡ , AxIdˡ
@@ -107,12 +139,6 @@ module _ (D : Data) where
 
     isIso-⁻¹ : ((f⁻¹ , _) : isIso f) → isIso f⁻¹
     isIso-⁻¹ {f} (f⁻¹ , p , q) = f , q , p
-```
-
-```agda
-    -- Definition 2.2.8
-    _≅_ : CSet → CSet → Set
-    X ≅ Y = Σ (X ⇒ Y) isIso
 ```
 
 ```agda
@@ -158,33 +184,11 @@ module _ (D : Data) where
 ```
 
 ```agda
-    𝟏 : CSet
-    𝟏 = AxTml .fst
-
     !⟨_⟩ : (X : CSet) → X ⇒ 𝟏
     !⟨ X ⟩ = AxTml .snd X .fst .fst
 
     ! : X ⇒ 𝟏
     ! {X} = !⟨ X ⟩
-```
-
-```agda
-    Elm : CSet → Set
-    Elm = 𝟏 ⇒_
-```
-
-```agda
-    -- Definition 2.3.6
-    ∀[∈]-syntax : (X : CSet) (P : Elm X → Set) → Set
-    ∀[∈]-syntax X P = (x : Elm X) → P x
-
-    infix 1 ∀[∈]-syntax
-    syntax ∀[∈]-syntax X (λ x → A) = ∀[ x ∈ X ] A
-```
-
-```agda
-    _（_） : (f : X ⇒ Y) → ∀[ x ∈ X ] Elm Y
-    f （ x ） = f ∘ x
 ```
 
 ```agda
