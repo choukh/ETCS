@@ -5,9 +5,10 @@ open import Level public using (Level)
 open import Data.Empty public using (⊥)
 open import Data.Unit public using (⊤; tt)
 open import Data.Product public
-  using (Σ; _,_)
-  renaming (_×_ to _∧_; proj₁ to fst; proj₂ to snd)
-open import Function using (_$_) public
+  using (Σ; _×_; _,_)
+  renaming (proj₁ to fst; proj₂ to snd)
+open import Function as Meta using (_$_) public
+open import Relation.Nullary public using (¬_)
 open import Relation.Binary.PropositionalEquality public
 ```
 
@@ -19,8 +20,8 @@ variable ℓ ℓ′ ℓ′′ : Level
 unique : {A : Set ℓ} (P : A → Set ℓ′) → Set _
 unique P = ∀ {a b} → P a → P b → a ≡ b
 
-universal : {A : Set ℓ} (B : A → Set ℓ′) (P : ∀ {x} → B x → Set ℓ′′) → Set _
-universal B P = ∀ x → (Σ (B x) P) ∧ unique (P {x})
+universal : (A : Set ℓ) (B : A → Set ℓ′) (P : ∀ {x} → B x → Set ℓ′′) → Set _
+universal A B P = ∀ x → (Σ (B x) P) × unique (P {x})
 ```
 
 ## The data
@@ -61,7 +62,7 @@ module _ (D : Data) where
 ```agda
     -- Definition 2.3.1
     terminal : CSet → Set
-    terminal T = universal (_⇒ T) (λ _ → ⊤)
+    terminal T = universal CSet (_⇒ T) (λ _ → ⊤)
 
     -- Axiom 2
     field AxTml : Σ CSet terminal
@@ -93,6 +94,7 @@ module _ (D : Data) where
 ```
 
 ```agda
+    -- Definition 2.5.1
     empty : CSet → Set
     empty X = ∀[ x ∈ X ] ⊥
 
@@ -100,12 +102,27 @@ module _ (D : Data) where
     field AxEmpty : Σ CSet empty
 ```
 
+```agda
+    ProductData : (X Y : CSet) → Set
+    ProductData X Y = Σ CSet λ P → P ⇒ X × P ⇒ Y
+
+    -- Definition 2.6.2
+    isProductDiagram : ProductData X Y → Set
+    isProductDiagram {X} {Y} d = let (P , p , q) = d in universal
+      (ProductData X Y)
+      (λ (A , _) → A ⇒ P)
+      (λ {(A , f , g)} h → p ∘ h ≡ f × q ∘ h ≡ g)
+
+    -- Axiom 5
+    field AxProd : Σ (ProductData X Y) isProductDiagram
+```
+
 ## Justification
 
 ```agda
     -- Definition 2.2.2
     isInv : (f : X ⇒ Y) (g : Y ⇒ X) → Set
-    isInv f g = f ∘ g ≡ id ∧ g ∘ f ≡ id
+    isInv f g = f ∘ g ≡ id × g ∘ f ≡ id
 ```
 
 ```agda
@@ -171,17 +188,23 @@ module _ (D : Data) where
 ```
 
 ```agda
+    isoInvariant⟨_⟩ : {A : Set ℓ} (π : A → CSet) (P : A → Set ℓ′) → Set _
+    isoInvariant⟨_⟩ π P = ∀ {a b} → P a → π a ≅ π b → P b
+
+    isoUnique⟨_⟩ : {A : Set ℓ} (π : A → CSet) (P : A → Set ℓ′) → Set _
+    isoUnique⟨_⟩ π P = ∀ {a b} → P a → P b → π a ≅ π b
+
     isoInvariant : (P : CSet → Set) → Set
-    isoInvariant P = ∀ {X Y} → P X → X ≅ Y → P Y
+    isoInvariant P = isoInvariant⟨ Meta.id ⟩ P
 
     isoUnique : (P : CSet → Set) → Set
-    isoUnique P = ∀ {X Y} → P X → P Y → X ≅ Y
+    isoUnique P = isoUnique⟨ Meta.id ⟩ P
 ```
 
 ```agda
     -- Lemma 2.3.3
     isoInvariant-terminal : isoInvariant terminal
-    isoInvariant-terminal {X = T} {Y = T′} tml (j , j⁻¹ , jj⁻¹ , _) X with tml X
+    isoInvariant-terminal {a = T} {b = T′} tml (j , j⁻¹ , jj⁻¹ , _) X with tml X
     ... | (f , tt) , f! = (j ∘ f , tt) , λ {f′ g′} _ _ → begin
       f′                      ≡˘⟨ AxIdˡ ⟩
       id ∘ f′                 ≡˘⟨ cong (_∘ f′) jj⁻¹ ⟩
@@ -196,8 +219,8 @@ module _ (D : Data) where
 ```agda
     -- Lemma 2.3.4
     isoUnique-terminal : isoUnique terminal
-    isoUnique-terminal {X} {Y} tX tY =
-      tY X .fst .fst , tX Y .fst .fst , tY Y .snd tt tt , tX X .snd tt tt
+    isoUnique-terminal {a = T} {b = T′} tT tT′ =
+      tT′ T .fst .fst , tT T′ .fst .fst , tT′ T′ .snd tt tt , tT T .snd tt tt
 ```
 
 ```agda
@@ -219,7 +242,13 @@ module _ (D : Data) where
 
 ```agda
     oneElement : CSet → Set
-    oneElement X = Elm X ∧ ∀ {x y : Elm X} → x ≡ y
+    oneElement X = Elm X × ∀ {x y : Elm X} → x ≡ y
+
+    * : Elm 𝟏
+    * = AxTml .snd 𝟏 .fst .fst
+
+    oneElement-𝟏 : oneElement 𝟏
+    oneElement-𝟏 = * , AxTml .snd 𝟏 .snd tt tt
 ```
 
 ```agda
@@ -240,3 +269,23 @@ module _ (D : Data) where
         y               ≡˘⟨ AxIdˡ ⟩
         id ∘ y          ∎ where open ≡-Reasoning
 ```
+
+```agda
+    -- Example 2.5.2
+    _ : ¬ empty 𝟏
+    _ = λ p → p *
+```
+
+```agda
+    -- Exercise 2.6.4
+    _ : ((P , _) : ProductData X Y) → empty X → empty P
+    _ = λ (P , p , _) eX q → eX (p （ q ）)
+```
+
+```agda
+    -- Lemma 2.6.6
+    isoInvariant-isProductDiagram : isoInvariant⟨ fst ⟩ (isProductDiagram {X} {Y})
+    isoInvariant-isProductDiagram = {!   !}
+```
+{X} {Y} {X = P} {Y = P′} ((p , q) , u) (j , j⁻¹ , _) =
+      (p ∘ j⁻¹ , q ∘ j⁻¹) , λ { (A , p′ , q′) → {!   !} , {!   !} }
