@@ -105,7 +105,7 @@ module _ (D : Data) where
         f⁻¹ ∘ f                 ≡⟨ f⁻¹f ⟩
         id                      ∎ where open ≡-Reasoning
 
-    isIso-⁻¹ : ((f⁻¹ , _) : isIso f) → isIso (f⁻¹)
+    isIso-⁻¹ : ((f⁻¹ , _) : isIso f) → isIso f⁻¹
     isIso-⁻¹ {f} (f⁻¹ , p , q) = f , q , p
 ```
 
@@ -153,8 +153,8 @@ module _ (D : Data) where
 ```agda
     -- Lemma 2.3.4
     isoUnique-isTerminal : isoUnique isTerminal
-    isoUnique-isTerminal {X = T} {Y = T′} tml tml′ with tml′ T | tml T′
-    ... | (f , tt) , f! | (g , tt) , g! = f , g , tml′ T′ .snd tt tt , tml T .snd tt tt
+    isoUnique-isTerminal {X} {Y} tX tY =
+      tY X .fst .fst , tX Y .fst .fst , tY Y .snd tt tt , tX X .snd tt tt
 ```
 
 ```agda
@@ -166,4 +166,11 @@ module _ (D : Data) where
 
     ! : X ⇒ 𝟏
     ! {X} = !⟨ X ⟩
+```
+
+```agda
+    -- Definition 2.3.6
+    ∀[∈]-syntax : (X : CSet) (P : 𝟏 ⇒ X → Set) → Set
+    ∀[∈]-syntax X P = (x : 𝟏 ⇒ X) → P x
+    syntax ∀[∈]-syntax X P x = ∀[ x ∈ X ] P
 ```
