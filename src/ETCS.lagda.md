@@ -4,7 +4,8 @@ module ETCS where
 open import Level public using (Level)
 open import Data.Unit public using (⊤; tt)
 open import Data.Product public
-  renaming (_×_ to _∧_) using (Σ; _,_; proj₁; proj₂)
+  using (Σ; _,_)
+  renaming (_×_ to _∧_; proj₁ to fst; proj₂ to snd)
 open import Function using (_$_) public
 open import Relation.Binary.PropositionalEquality public
 ```
@@ -153,5 +154,10 @@ module _ (D : Data) where
     -- Lemma 2.3.4
     isoUnique-isTerminal : isoUnique isTerminal
     isoUnique-isTerminal {X = T} {Y = T′} tml tml′ with tml′ T | tml T′
-    ... | (f , tt) , f! | (g , tt) , g! = f , g , tml′ T′ .proj₂ tt tt , tml T .proj₂ tt tt
+    ... | (f , tt) , f! | (g , tt) , g! = f , g , tml′ T′ .snd tt tt , tml T .snd tt tt
+```
+
+```agda
+    𝟏 : CSet
+    𝟏 = fst AxTml
 ```
