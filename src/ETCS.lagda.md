@@ -2,6 +2,7 @@
 module ETCS where
 
 open import Level public using (Level)
+open import Data.Empty public using (⊥)
 open import Data.Unit public using (⊤; tt)
 open import Data.Product public
   using (Σ; _,_)
@@ -9,6 +10,8 @@ open import Data.Product public
 open import Function using (_$_) public
 open import Relation.Binary.PropositionalEquality public
 ```
+
+## Introduction
 
 ```agda
 variable ℓ ℓ′ ℓ′′ : Level
@@ -19,6 +22,8 @@ unique P = ∀ {a b} → P a → P b → a ≡ b
 universal : {A : Set ℓ} (B : A → Set ℓ′) (P : ∀ {x} → B x → Set ℓ′′) → Set _
 universal B P = ∀ x → (Σ (B x) P) ∧ unique (P {x})
 ```
+
+## The data
 
 ```agda
 -- 2.1 The data
@@ -33,6 +38,8 @@ record Data : Set₁ where
   id : {X : CSet} → X ⇒ X
   id {X} = id⟨ X ⟩
 ```
+
+## Axioms
 
 ```agda
 module _ (D : Data) where
@@ -53,11 +60,11 @@ module _ (D : Data) where
 
 ```agda
     -- Definition 2.3.1
-    isTerminal : CSet → Set
-    isTerminal T = universal (_⇒ T) (λ _ → ⊤)
+    terminal : CSet → Set
+    terminal T = universal (_⇒ T) (λ _ → ⊤)
 
     -- Axiom 2
-    field AxTml : Σ CSet isTerminal
+    field AxTml : Σ CSet terminal
 ```
 
 ```agda
@@ -73,7 +80,7 @@ module _ (D : Data) where
     ∀[∈]-syntax : (X : CSet) (P : Elm X → Set) → Set
     ∀[∈]-syntax X P = (x : Elm X) → P x
 
-    infix 1 ∀[∈]-syntax
+    infix 3 ∀[∈]-syntax
     syntax ∀[∈]-syntax X (λ x → A) = ∀[ x ∈ X ] A
 ```
 
@@ -84,6 +91,16 @@ module _ (D : Data) where
     -- Axiom 3
     field AxFunExt : (∀[ x ∈ X ] f （ x ） ≡ g （ x ）) → f ≡ g
 ```
+
+```agda
+    empty : CSet → Set
+    empty X = ∀[ x ∈ X ] ⊥
+
+    -- Axiom 4
+    field AxEmpty : Σ CSet empty
+```
+
+## Justification
 
 ```agda
     -- Definition 2.2.2
@@ -163,8 +180,8 @@ module _ (D : Data) where
 
 ```agda
     -- Lemma 2.3.3
-    isoInvariant-isTerminal : isoInvariant isTerminal
-    isoInvariant-isTerminal {X = T} {Y = T′} tml (j , j⁻¹ , jj⁻¹ , _) X with tml X
+    isoInvariant-terminal : isoInvariant terminal
+    isoInvariant-terminal {X = T} {Y = T′} tml (j , j⁻¹ , jj⁻¹ , _) X with tml X
     ... | (f , tt) , f! = (j ∘ f , tt) , λ {f′ g′} _ _ → begin
       f′                      ≡˘⟨ AxIdˡ ⟩
       id ∘ f′                 ≡˘⟨ cong (_∘ f′) jj⁻¹ ⟩
@@ -178,8 +195,8 @@ module _ (D : Data) where
 
 ```agda
     -- Lemma 2.3.4
-    isoUnique-isTerminal : isoUnique isTerminal
-    isoUnique-isTerminal {X} {Y} tX tY =
+    isoUnique-terminal : isoUnique terminal
+    isoUnique-terminal {X} {Y} tX tY =
       tY X .fst .fst , tX Y .fst .fst , tY Y .snd tt tt , tX X .snd tt tt
 ```
 
@@ -198,4 +215,28 @@ module _ (D : Data) where
 
     ∘-wellDefined : ∀[ x ∈ X ] (g ∘ f) （ x ） ≡ g （ f （ x ） ）
     ∘-wellDefined _ = AxAss
+```
+
+```agda
+    oneElement : CSet → Set
+    oneElement X = Elm X ∧ ∀ {x y : Elm X} → x ≡ y
+```
+
+```agda
+    -- Lemma 2.4.1
+    terminal→oneElement : terminal X → oneElement X
+    terminal→oneElement tml = tml 𝟏 .fst .fst , tml 𝟏 .snd tt tt
+
+    oneElement→terminal : oneElement X → terminal X
+    oneElement→terminal (x , x!) = isoInvariant-terminal (AxTml .snd) $
+      x , ! , AxFunExt q , p where
+      p : {x y : Elm 𝟏} → x ≡ y
+      p = AxTml .snd 𝟏 .snd tt tt
+      q = λ y →         begin
+        (x ∘ !) ∘ y     ≡⟨ AxAss ⟩
+        x ∘ (! ∘ y)     ≡⟨ cong (x ∘_) p ⟩
+        x ∘ id          ≡⟨ AxIdʳ ⟩
+        x               ≡⟨ x! ⟩
+        y               ≡˘⟨ AxIdˡ ⟩
+        id ∘ y          ∎ where open ≡-Reasoning
 ```
