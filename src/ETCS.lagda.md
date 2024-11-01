@@ -159,5 +159,11 @@ module _ (D : Data) where
 
 ```agda
     𝟏 : CSet
-    𝟏 = fst AxTml
+    𝟏 = AxTml .fst
+
+    !⟨_⟩ : (X : CSet) → X ⇒ 𝟏
+    !⟨ X ⟩ = AxTml .snd X .fst .fst
+
+    ! : X ⇒ 𝟏
+    ! {X} = !⟨ X ⟩
 ```
