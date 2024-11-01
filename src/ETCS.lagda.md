@@ -169,8 +169,29 @@ module _ (D : Data) where
 ```
 
 ```agda
+    Elm : CSet → Set
+    Elm = 𝟏 ⇒_
+```
+
+```agda
     -- Definition 2.3.6
-    ∀[∈]-syntax : (X : CSet) (P : 𝟏 ⇒ X → Set) → Set
-    ∀[∈]-syntax X P = (x : 𝟏 ⇒ X) → P x
-    syntax ∀[∈]-syntax X P x = ∀[ x ∈ X ] P
+    ∀[∈]-syntax : (X : CSet) (P : Elm X → Set) → Set
+    ∀[∈]-syntax X P = (x : Elm X) → P x
+
+    infix 1 ∀[∈]-syntax
+    syntax ∀[∈]-syntax X (λ x → A) = ∀[ x ∈ X ] A
+```
+
+```agda
+    _（_） : (f : X ⇒ Y) → ∀[ x ∈ X ] Elm Y
+    f （ x ） = f ∘ x
+```
+
+```agda
+    -- Lemma 2.3.7
+    id-wellDefined : ∀[ x ∈ X ] id （ x ） ≡ x
+    id-wellDefined x = AxIdˡ
+
+    ∘-wellDefined : ∀[ x ∈ X ] (g ∘ f) （ x ） ≡ g （ f （ x ） ）
+    ∘-wellDefined _ = AxAss
 ```
