@@ -20,8 +20,8 @@ variable ℓ ℓ′ ℓ′′ : Level
 unique : {A : Set ℓ} (P : A → Set ℓ′) → Set _
 unique P = ∀ {a b} → P a → P b → a ≡ b
 
-universal : (A : Set ℓ) (B : A → Set ℓ′) (P : ∀ {x} → B x → Set ℓ′′) → Set _
-universal A B P = ∀ x → (Σ (B x) P) × unique (P {x})
+universal : (A : Set ℓ) (B : A → Set ℓ′) (P : ∀ x → B x → Set ℓ′′) → Set _
+universal A B P = ∀ x → (Σ (B x) (P x)) × unique (P x)
 ```
 
 ## The data
@@ -62,7 +62,7 @@ module _ (D : Data) where
 ```agda
     -- Definition 2.3.1
     terminal : CSet → Set
-    terminal T = universal CSet (_⇒ T) (λ _ → ⊤)
+    terminal T = universal CSet (_⇒ T) (λ _ _ → ⊤)
 
     -- Axiom 2
     field AxTml : Σ CSet terminal
@@ -103,15 +103,23 @@ module _ (D : Data) where
 ```
 
 ```agda
+    Commuter : (A : Set ℓ) (ℓ′ : Level) → Set (ℓ ⊔ suc ℓ′)
+    Commuter A ℓ′ = Σ (A → CSet) λ π → (a b : A) (j : π a ⇒ π b) → Set ℓ′
+
+    universal⟨_⟩ : {A : Set ℓ} → Commuter A ℓ′ → A → Set _
+    universal⟨_⟩ {ℓ} {ℓ′} {A} C a = let (π , comm) = C in universal A (λ x → π x ⇒ π a) λ x → comm x a
+```
+
+```agda
     ProductDiagram : (X Y : CSet) → Set
     ProductDiagram X Y = Σ CSet λ P → P ⇒ X × P ⇒ Y
 
+    ProductCommuter : Commuter (ProductDiagram X Y) _
+    ProductCommuter = fst , λ { (A , f , g) (P , p , q) h → p ∘ h ≡ f × q ∘ h ≡ g }
+
     -- Definition 2.6.2
     isProduct : ProductDiagram X Y → Set
-    isProduct {X} {Y} d = let (P , p , q) = d in universal
-      (ProductDiagram X Y)
-      (λ (A , _) → A ⇒ P)
-      (λ {(A , f , g)} h → p ∘ h ≡ f × q ∘ h ≡ g)
+    isProduct = universal⟨ ProductCommuter ⟩
 
     -- Axiom 5
     field AxProd : Σ (ProductDiagram X Y) isProduct
@@ -188,9 +196,6 @@ module _ (D : Data) where
 ```
 
 ```agda
-    Commuter : (A : Set ℓ) (ℓ′ : Level) → Set (ℓ ⊔ suc ℓ′)
-    Commuter A ℓ′ = Σ (A → CSet) λ π → (a b : A) (j : π a ⇒ π b) → Set ℓ′
-
     isoInvariant⟨_⟩ : {A : Set ℓ} (C : Commuter A ℓ′) (P : A → Set ℓ′′) → Set _
     isoInvariant⟨_⟩ (π , comm) P = ∀ {a b} (j : π a ⇒ π b) → isIso j → comm a b j → P a → P b
 
@@ -287,13 +292,64 @@ module _ (D : Data) where
 ```
 
 ```agda
-    ProductCommuter : Commuter (ProductDiagram X Y) _
-    ProductCommuter = fst , λ { (P , p , q) (P′ , p′ , q′) j → p′ ∘ j ≡ p × q′ ∘ j ≡ q }
-
     -- Lemma 2.6.6
     isoInvariant-isProduct : isoInvariant⟨ ProductCommuter ⟩ (isProduct {X} {Y})
     isoInvariant-isProduct {a = P , p , q} {b = P′ , p′ , q′}
       j (j⁻¹ , jj⁻¹ , j⁻¹j) (p′j , q′j) Pa c@(A , f , g) =
-        let ((h , ph , qh) , u) = Pa c in
-        (j ∘ h , {!  !} , {!   !}) , {!   !}
+        let open ≡-Reasoning
+            ((h , ph , qh) , u) = Pa c
+            p′jh =                      begin
+              p′ ∘ (j ∘ h)              ≡˘⟨ AxAss ⟩
+              (p′ ∘ j) ∘ h              ≡⟨ cong (_∘ h) p′j ⟩
+              p ∘ h                     ≡⟨ ph ⟩
+              f                         ∎
+            q′jh =                      begin
+              q′ ∘ (j ∘ h)              ≡˘⟨ AxAss ⟩
+              (q′ ∘ j) ∘ h              ≡⟨ cong (_∘ h) q′j ⟩
+              q ∘ h                     ≡⟨ qh ⟩
+              g                         ∎
+        in
+        (j ∘ h , p′jh , q′jh) , λ {h′₁} {h′₂} (p′h′₁ , q′h′₁) (p′h′₂ , q′h′₂) →
+          let open ≡-Reasoning
+              pj⁻¹h′₁ =                 begin
+                p ∘ (j⁻¹ ∘ h′₁)         ≡˘⟨ AxAss ⟩
+                (p ∘ j⁻¹) ∘ h′₁         ≡˘⟨ cong (_∘ h′₁) $ cong (_∘ j⁻¹) p′j ⟩
+                ((p′ ∘ j) ∘ j⁻¹) ∘ h′₁  ≡⟨ cong (_∘ h′₁) AxAss ⟩
+                (p′ ∘ (j ∘ j⁻¹)) ∘ h′₁  ≡⟨ cong (_∘ h′₁) $ cong (p′ ∘_) jj⁻¹ ⟩
+                (p′ ∘ id) ∘ h′₁         ≡⟨ cong (_∘ h′₁) AxIdʳ ⟩
+                p′ ∘ h′₁                ≡⟨ p′h′₁ ⟩
+                f                       ∎
+              qj⁻¹h′₁ =                 begin
+                q ∘ (j⁻¹ ∘ h′₁)         ≡˘⟨ AxAss ⟩
+                (q ∘ j⁻¹) ∘ h′₁         ≡˘⟨ cong (_∘ h′₁) $ cong (_∘ j⁻¹) q′j ⟩
+                ((q′ ∘ j) ∘ j⁻¹) ∘ h′₁  ≡⟨ cong (_∘ h′₁) AxAss ⟩
+                (q′ ∘ (j ∘ j⁻¹)) ∘ h′₁  ≡⟨ cong (_∘ h′₁) $ cong (q′ ∘_) jj⁻¹ ⟩
+                (q′ ∘ id) ∘ h′₁         ≡⟨ cong (_∘ h′₁) AxIdʳ ⟩
+                q′ ∘ h′₁                ≡⟨ q′h′₁ ⟩
+                g                       ∎
+              pj⁻¹h′₂ =                 begin
+                p ∘ (j⁻¹ ∘ h′₂)         ≡˘⟨ AxAss ⟩
+                (p ∘ j⁻¹) ∘ h′₂         ≡˘⟨ cong (_∘ h′₂) $ cong (_∘ j⁻¹) p′j ⟩
+                ((p′ ∘ j) ∘ j⁻¹) ∘ h′₂  ≡⟨ cong (_∘ h′₂) AxAss ⟩
+                (p′ ∘ (j ∘ j⁻¹)) ∘ h′₂  ≡⟨ cong (_∘ h′₂) $ cong (p′ ∘_) jj⁻¹ ⟩
+                (p′ ∘ id) ∘ h′₂         ≡⟨ cong (_∘ h′₂) AxIdʳ ⟩
+                p′ ∘ h′₂                ≡⟨ p′h′₂ ⟩
+                f                       ∎
+              qj⁻¹h′₂ =                 begin
+                q ∘ (j⁻¹ ∘ h′₂)         ≡˘⟨ AxAss ⟩
+                (q ∘ j⁻¹) ∘ h′₂         ≡˘⟨ cong (_∘ h′₂) $ cong (_∘ j⁻¹) q′j ⟩
+                ((q′ ∘ j) ∘ j⁻¹) ∘ h′₂  ≡⟨ cong (_∘ h′₂) AxAss ⟩
+                (q′ ∘ (j ∘ j⁻¹)) ∘ h′₂  ≡⟨ cong (_∘ h′₂) $ cong (q′ ∘_) jj⁻¹ ⟩
+                (q′ ∘ id) ∘ h′₂         ≡⟨ cong (_∘ h′₂) AxIdʳ ⟩
+                q′ ∘ h′₂                ≡⟨ q′h′₂ ⟩
+                g                       ∎
+          in
+          h′₁                           ≡˘⟨ AxIdˡ ⟩
+          id ∘ h′₁                      ≡˘⟨ cong (_∘ h′₁) jj⁻¹ ⟩
+          (j ∘ j⁻¹) ∘ h′₁               ≡⟨ AxAss ⟩
+          j ∘ (j⁻¹ ∘ h′₁)               ≡⟨ cong (j ∘_) (u (pj⁻¹h′₁ , qj⁻¹h′₁) (pj⁻¹h′₂ , qj⁻¹h′₂)) ⟩
+          j ∘ (j⁻¹ ∘ h′₂)               ≡˘⟨ AxAss ⟩
+          (j ∘ j⁻¹) ∘ h′₂               ≡⟨ cong (_∘ h′₂) jj⁻¹ ⟩
+          id ∘ h′₂                      ≡⟨ AxIdˡ ⟩
+          h′₂                           ∎
 ```
