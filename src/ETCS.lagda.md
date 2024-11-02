@@ -1,7 +1,7 @@
 ```agda
 module ETCS where
 
-open import Level public using (Level)
+open import Level public using (Level; suc; _⊔_)
 open import Data.Empty public using (⊥)
 open import Data.Unit public using (⊤; tt)
 open import Data.Product public
@@ -103,18 +103,18 @@ module _ (D : Data) where
 ```
 
 ```agda
-    ProductData : (X Y : CSet) → Set
-    ProductData X Y = Σ CSet λ P → P ⇒ X × P ⇒ Y
+    ProductDiagram : (X Y : CSet) → Set
+    ProductDiagram X Y = Σ CSet λ P → P ⇒ X × P ⇒ Y
 
     -- Definition 2.6.2
-    isProductDiagram : ProductData X Y → Set
-    isProductDiagram {X} {Y} d = let (P , p , q) = d in universal
-      (ProductData X Y)
+    isProduct : ProductDiagram X Y → Set
+    isProduct {X} {Y} d = let (P , p , q) = d in universal
+      (ProductDiagram X Y)
       (λ (A , _) → A ⇒ P)
       (λ {(A , f , g)} h → p ∘ h ≡ f × q ∘ h ≡ g)
 
     -- Axiom 5
-    field AxProd : Σ (ProductData X Y) isProductDiagram
+    field AxProd : Σ (ProductDiagram X Y) isProduct
 ```
 
 ## Justification
@@ -188,39 +188,43 @@ module _ (D : Data) where
 ```
 
 ```agda
-    isoInvariant⟨_⟩ : {A : Set ℓ} (π : A → CSet) (P : A → Set ℓ′) → Set _
-    isoInvariant⟨_⟩ π P = ∀ {a b} → P a → π a ≅ π b → P b
+    Commuter : (A : Set ℓ) (ℓ′ : Level) → Set (ℓ ⊔ suc ℓ′)
+    Commuter A ℓ′ = Σ (A → CSet) λ π → (a b : A) (j : π a ⇒ π b) → Set ℓ′
 
-    isoUnique⟨_⟩ : {A : Set ℓ} (π : A → CSet) (P : A → Set ℓ′) → Set _
-    isoUnique⟨_⟩ π P = ∀ {a b} → P a → P b → π a ≅ π b
+    isoInvariant⟨_⟩ : {A : Set ℓ} (C : Commuter A ℓ′) (P : A → Set ℓ′′) → Set _
+    isoInvariant⟨_⟩ (π , comm) P = ∀ {a b} (j : π a ⇒ π b) → isIso j → comm a b j → P a → P b
+
+    isoUnique⟨_⟩ : {A : Set ℓ} (C : Commuter A ℓ′) (P : A → Set ℓ′′) → Set _
+    isoUnique⟨_⟩ (π , comm) P = ∀ {a b} → P a → P b → Σ (π a ⇒ π b) λ j → isIso j × comm a b j
 
     isoInvariant : (P : CSet → Set) → Set
-    isoInvariant P = isoInvariant⟨ Meta.id ⟩ P
+    isoInvariant P = isoInvariant⟨ Meta.id , (λ _ _ _ → ⊤) ⟩ P
 
     isoUnique : (P : CSet → Set) → Set
-    isoUnique P = isoUnique⟨ Meta.id ⟩ P
+    isoUnique P = isoUnique⟨ Meta.id , (λ _ _ _ → ⊤) ⟩ P
 ```
 
 ```agda
     -- Lemma 2.3.3
     isoInvariant-terminal : isoInvariant terminal
-    isoInvariant-terminal {a = T} {b = T′} tml (j , j⁻¹ , jj⁻¹ , _) X with tml X
-    ... | (f , tt) , f! = (j ∘ f , tt) , λ {f′ g′} _ _ → begin
-      f′                      ≡˘⟨ AxIdˡ ⟩
-      id ∘ f′                 ≡˘⟨ cong (_∘ f′) jj⁻¹ ⟩
-      (j ∘ j⁻¹) ∘ f′          ≡⟨ AxAss ⟩
-      j ∘ (j⁻¹ ∘ f′)          ≡⟨ cong (j ∘_) (f! tt tt) ⟩
-      j ∘ (j⁻¹ ∘ g′)          ≡˘⟨ AxAss ⟩
-      (j ∘ j⁻¹) ∘ g′          ≡⟨ cong (_∘ g′) jj⁻¹ ⟩
-      id ∘ g′                 ≡⟨ AxIdˡ ⟩
-      g′                      ∎ where open ≡-Reasoning
+    isoInvariant-terminal {a = T} {b = T′} j (j⁻¹ , jj⁻¹ , _) tt tml X =
+      let (f , tt) , f! = tml X in
+      (j ∘ f , tt) , λ {f′ g′} _ _ → begin
+        f′                      ≡˘⟨ AxIdˡ ⟩
+        id ∘ f′                 ≡˘⟨ cong (_∘ f′) jj⁻¹ ⟩
+        (j ∘ j⁻¹) ∘ f′          ≡⟨ AxAss ⟩
+        j ∘ (j⁻¹ ∘ f′)          ≡⟨ cong (j ∘_) (f! tt tt) ⟩
+        j ∘ (j⁻¹ ∘ g′)          ≡˘⟨ AxAss ⟩
+        (j ∘ j⁻¹) ∘ g′          ≡⟨ cong (_∘ g′) jj⁻¹ ⟩
+        id ∘ g′                 ≡⟨ AxIdˡ ⟩
+        g′                      ∎ where open ≡-Reasoning
 ```
 
 ```agda
     -- Lemma 2.3.4
     isoUnique-terminal : isoUnique terminal
     isoUnique-terminal {a = T} {b = T′} tT tT′ =
-      tT′ T .fst .fst , tT T′ .fst .fst , tT′ T′ .snd tt tt , tT T .snd tt tt
+      tT′ T .fst .fst , (tT T′ .fst .fst , tT′ T′ .snd tt tt , tT T .snd tt tt) , tt
 ```
 
 ```agda
@@ -257,17 +261,17 @@ module _ (D : Data) where
     terminal→oneElement tml = tml 𝟏 .fst .fst , tml 𝟏 .snd tt tt
 
     oneElement→terminal : oneElement X → terminal X
-    oneElement→terminal (x , x!) = isoInvariant-terminal (AxTml .snd) $
-      x , ! , AxFunExt q , p where
-      p : {x y : Elm 𝟏} → x ≡ y
-      p = AxTml .snd 𝟏 .snd tt tt
-      q = λ y →         begin
-        (x ∘ !) ∘ y     ≡⟨ AxAss ⟩
-        x ∘ (! ∘ y)     ≡⟨ cong (x ∘_) p ⟩
-        x ∘ id          ≡⟨ AxIdʳ ⟩
-        x               ≡⟨ x! ⟩
-        y               ≡˘⟨ AxIdˡ ⟩
-        id ∘ y          ∎ where open ≡-Reasoning
+    oneElement→terminal (x , x!) = isoInvariant-terminal
+      x (! , AxFunExt q , p) tt (AxTml .snd) where
+        p : {x y : Elm 𝟏} → x ≡ y
+        p = AxTml .snd 𝟏 .snd tt tt
+        q = λ y →         begin
+          (x ∘ !) ∘ y     ≡⟨ AxAss ⟩
+          x ∘ (! ∘ y)     ≡⟨ cong (x ∘_) p ⟩
+          x ∘ id          ≡⟨ AxIdʳ ⟩
+          x               ≡⟨ x! ⟩
+          y               ≡˘⟨ AxIdˡ ⟩
+          id ∘ y          ∎ where open ≡-Reasoning
 ```
 
 ```agda
@@ -278,14 +282,18 @@ module _ (D : Data) where
 
 ```agda
     -- Exercise 2.6.4
-    _ : ((P , _) : ProductData X Y) → empty X → empty P
+    _ : ((P , _) : ProductDiagram X Y) → empty X → empty P
     _ = λ (P , p , _) eX q → eX (p （ q ）)
 ```
 
 ```agda
+    ProductCommuter : Commuter (ProductDiagram X Y) _
+    ProductCommuter = fst , λ { (P , p , q) (P′ , p′ , q′) j → p′ ∘ j ≡ p × q′ ∘ j ≡ q }
+
     -- Lemma 2.6.6
-    isoInvariant-isProductDiagram : isoInvariant⟨ fst ⟩ (isProductDiagram {X} {Y})
-    isoInvariant-isProductDiagram = {!   !}
+    isoInvariant-isProduct : isoInvariant⟨ ProductCommuter ⟩ (isProduct {X} {Y})
+    isoInvariant-isProduct {a = P , p , q} {b = P′ , p′ , q′}
+      j (j⁻¹ , jj⁻¹ , j⁻¹j) (p′j , q′j) Pa c@(A , f , g) =
+        let ((h , ph , qh) , u) = Pa c in
+        (j ∘ h , {!  !} , {!   !}) , {!   !}
 ```
-{X} {Y} {X = P} {Y = P′} ((p , q) , u) (j , j⁻¹ , _) =
-      (p ∘ j⁻¹ , q ∘ j⁻¹) , λ { (A , p′ , q′) → {!   !} , {!   !} }
