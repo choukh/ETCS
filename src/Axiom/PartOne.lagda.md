@@ -91,7 +91,7 @@ isoInvariant⟨_⟩ : {A : Set ℓ} (C : Commuter A ℓ′) (P : A → Set ℓ�
 isoInvariant⟨_⟩ (π , comm) P = ∀ {a b} (j : π a ⇒ π b) → isIso j → comm a b j → P a → P b
 
 isoUnique⟨_⟩ : {A : Set ℓ} (C : Commuter A ℓ′) (P : A → Set ℓ′′) → Set _
-isoUnique⟨_⟩ (π , comm) P = ∀ {a b} → P a → P b → Σ (π a ⇒ π b) λ j → isIso j × comm a b j
+isoUnique⟨_⟩ (π , comm) P = ∀ {a b} → P a → P b → Σ (π a ⇒ π b) λ j → isIso j × comm a b j × unique (comm a b)
 
 isoInvariant : (P : CSet → Set) → Set
 isoInvariant P = isoInvariant⟨ idᴹ , (λ _ _ _ → ⊤) ⟩ P
@@ -116,7 +116,17 @@ isoInvariant-terminal {a = T} {b = T′} j (j⁻¹ , jj⁻¹ , _) tt tml X =
 -- Lemma 2.3.4
 isoUnique-terminal : isoUnique terminal
 isoUnique-terminal {a = T} {b = T′} tT tT′ =
-  tT′ T .fst .fst , (tT T′ .fst .fst , tT′ T′ .snd tt tt , tT T .snd tt tt) , tt
+  let f : T ⇒ T′
+      f = tT′ T .fst .fst
+      f′ : T′ ⇒ T
+      f′ = tT T′ .fst .fst
+      ff′ : f ∘ f′ ≡ id
+      ff′ = tT′ T′ .snd tt tt
+      f′f : f′ ∘ f ≡ id
+      f′f = tT T .snd tt tt
+      f≡g : {f g : T ⇒ T′} → f ≡ g
+      f≡g = tT′ T .snd tt tt
+  in f , (f′ , ff′ , f′f) , tt , λ _ _ → f≡g
 ```
 
 ```agda
@@ -270,4 +280,19 @@ isoInvariant-isProduct-XY a@(P , p , q) (j , j⁻¹ , jj⁻¹ , j⁻¹j) (k , k�
           k⁻¹ ∘ g                   ∎
     in
     u (ph₁ , qh₁) (ph₂ , qh₂)
+```
+
+```agda
+-- Lemma 2.6.8
+isoUnique-isProduct : isoUnique⟨ ProductCommuter ⟩ (isProduct {X} {Y})
+isoUnique-isProduct a@{a = P , p , q} b@{b = P′ , p′ , q′} Pa Pb =
+  let j : P ⇒ P′
+      j = Pb a .fst .fst
+      c : p′ ∘ j ≡ p × q′ ∘ j ≡ q
+      c = Pb a .fst .snd
+      u : unique (λ j → p′ ∘ j ≡ p × q′ ∘ j ≡ q)
+      u = Pb a .snd
+      iso : isIso j
+      iso = {!   !}
+  in j , iso , c , u
 ```
