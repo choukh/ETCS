@@ -232,7 +232,7 @@ isoInvariant-isProduct {a = P , p , q} {b = P′ , p′ , q′}
 isoInvariant-isProduct-XY : (a@(P , p , q) : ProductDiagram X Y)
   ((j , _) : X ≅ X′) ((k , _) : Y ≅ Y′) →
   isProduct a → isProduct (P , j ∘ p , k ∘ q)
-isoInvariant-isProduct-XY a@(P , p , q) (j , j⁻¹ , jj⁻¹ , _) (k , k⁻¹ , kk⁻¹ , _) Pa c@(A , f , g) =
+isoInvariant-isProduct-XY a@(P , p , q) (j , j⁻¹ , jj⁻¹ , j⁻¹j) (k , k⁻¹ , kk⁻¹ , k⁻¹k) Pa c@(A , f , g) =
   let open ≡-Reasoning
       ((h , ph , qh) , u) = Pa (A , j⁻¹ ∘ f , k⁻¹ ∘ g)
       jph =                         begin
@@ -247,5 +247,27 @@ isoInvariant-isProduct-XY a@(P , p , q) (j , j⁻¹ , jj⁻¹ , _) (k , k⁻¹ ,
         g                           ∎
   in
   (h , jph , kqh) , λ {a = h₁} {b = h₂} (jph₁ , kqh₁) (jph₂ , kqh₂) →
-    u ({!   !} , {!   !}) ({!   !} , {!   !})
+    let open ≡-Reasoning
+        ph₁ =                       begin
+          p ∘ h₁                    ≡˘⟨ AssIdˡ j⁻¹j ⟩
+          j⁻¹ ∘ (j ∘ (p ∘ h₁))      ≡˘⟨ cong (j⁻¹ ∘_) AxAss ⟩
+          j⁻¹ ∘ ((j ∘ p) ∘ h₁)      ≡⟨ cong (j⁻¹ ∘_) jph₁ ⟩
+          j⁻¹ ∘ f                   ∎
+        qh₁ =                       begin
+          q ∘ h₁                    ≡˘⟨ AssIdˡ k⁻¹k ⟩
+          k⁻¹ ∘ (k ∘ (q ∘ h₁))      ≡˘⟨ cong (k⁻¹ ∘_) AxAss ⟩
+          k⁻¹ ∘ ((k ∘ q) ∘ h₁)      ≡⟨ cong (k⁻¹ ∘_) kqh₁ ⟩
+          k⁻¹ ∘ g                   ∎
+        ph₂ =                       begin
+          p ∘ h₂                    ≡˘⟨ AssIdˡ j⁻¹j ⟩
+          j⁻¹ ∘ (j ∘ (p ∘ h₂))      ≡˘⟨ cong (j⁻¹ ∘_) AxAss ⟩
+          j⁻¹ ∘ ((j ∘ p) ∘ h₂)      ≡⟨ cong (j⁻¹ ∘_) jph₂ ⟩
+          j⁻¹ ∘ f                   ∎
+        qh₂ =                       begin
+          q ∘ h₂                    ≡˘⟨ AssIdˡ k⁻¹k ⟩
+          k⁻¹ ∘ (k ∘ (q ∘ h₂))      ≡˘⟨ cong (k⁻¹ ∘_) AxAss ⟩
+          k⁻¹ ∘ ((k ∘ q) ∘ h₂)      ≡⟨ cong (k⁻¹ ∘_) kqh₂ ⟩
+          k⁻¹ ∘ g                   ∎
+    in
+    u (ph₁ , qh₁) (ph₂ , qh₂)
 ```
