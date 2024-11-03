@@ -27,7 +27,8 @@ universal A B P = ∀ x → (Σ (B x) (P x)) × unique (P x)
 ```agda
 -- 2.1 The data
 record Data : Set₁ where
-  infix 5 _∘_
+  infixl 10 _⇒_
+  infix 10 _∘_
   field
     CSet : Set
     _⇒_ : (X Y : CSet) → Set
@@ -119,6 +120,16 @@ record Data : Set₁ where
 
     -- Axiom 5
     field AxProd : Σ (ProductDiagram X Y) isProduct
+
+    infixl 15 _×̇_
+    _×̇_ : CSet → CSet → CSet
+    X ×̇ Y = AxProd {X} {Y} .fst .fst
+
+    pr₁ : X ×̇ Y ⇒ X
+    pr₁ {X} {Y} = AxProd {X} {Y} .fst .snd .fst
+
+    pr₂ : X ×̇ Y ⇒ Y
+    pr₂ {X} {Y} = AxProd {X} {Y} .fst .snd .snd
 ```
 
 ```agda
