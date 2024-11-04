@@ -120,7 +120,9 @@ record Data : Set₁ where
 
     -- Axiom 5
     field AxProd : Σ (ProductDiagram X Y) isProduct
+```
 
+```agda
     infixl 15 _×̇_
     _×̇_ : CSet → CSet → CSet
     X ×̇ Y = AxProd {X} {Y} .fst .fst
@@ -130,6 +132,19 @@ record Data : Set₁ where
 
     pr₂ : X ×̇ Y ⇒ Y
     pr₂ {X} {Y} = AxProd {X} {Y} .fst .snd .snd
+
+    infix 5 _⸴_
+    _⸴_ : {A : CSet} → A ⇒ X → A ⇒ Y → A ⇒ X ×̇ Y
+    f ⸴ g = AxProd .snd (_ , f , g) .fst .fst
+
+    pr₁≡ : pr₁ ∘ ( f ⸴ g ) ≡ f
+    pr₁≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .fst
+
+    pr₂≡ : pr₂ ∘ ( f ⸴ g ) ≡ g
+    pr₂≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .snd
+
+    pr-η : {A : CSet} (h : A ⇒ X ×̇ Y) → h ≡ pr₁ ∘ h ⸴ pr₂ ∘ h
+    pr-η h = AxProd .snd (_ , (pr₁ ∘ h) , (pr₂ ∘ h)) .snd (refl , refl) (pr₁≡ , pr₂≡)
 ```
 
 ```agda
@@ -139,3 +154,4 @@ record ETCS : Set₁ where
   open Data (etcs .fst) public
   open Data.Axiom (etcs .snd) public
 ```
+ 
