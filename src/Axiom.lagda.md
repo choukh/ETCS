@@ -41,7 +41,7 @@ record Data : Set₁ where
 
 ```agda
   variable
-    W X Y Z X′ Y′ : CSet
+    A W X Y Z X′ Y′ : CSet
     f g h f′ g′ : X ⇒ Y
 ```
 
@@ -49,6 +49,11 @@ record Data : Set₁ where
 
 ```agda
   record Axiom : Set where
+```
+
+### Axiom 1 - 4
+
+```agda
     field
       -- Axiom 1
       AxAss : (h ∘ g) ∘ f ≡ h ∘ (g ∘ f)
@@ -99,6 +104,8 @@ record Data : Set₁ where
     field AxEmpty : Σ CSet empty
 ```
 
+### Axiom 5
+
 ```agda
     Commuter : (A : Set ℓ) (ℓ′ : Level) → Set (ℓ ⊔ suc ℓ′)
     Commuter A ℓ′ = Σ (A → CSet) λ π → (a b : A) (j : π a ⇒ π b) → Set ℓ′
@@ -134,7 +141,7 @@ record Data : Set₁ where
     pr₂ {X} {Y} = AxProd {X} {Y} .fst .snd .snd
 
     infix 5 _⸴_
-    _⸴_ : {A : CSet} → A ⇒ X → A ⇒ Y → A ⇒ X ×̇ Y
+    _⸴_ : A ⇒ X → A ⇒ Y → A ⇒ X ×̇ Y
     f ⸴ g = AxProd .snd (_ , f , g) .fst .fst
 
     pr₁≡ : pr₁ ∘ ( f ⸴ g ) ≡ f
@@ -143,7 +150,7 @@ record Data : Set₁ where
     pr₂≡ : pr₂ ∘ ( f ⸴ g ) ≡ g
     pr₂≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .snd
 
-    pr-η : {A : CSet} (h : A ⇒ X ×̇ Y) → h ≡ pr₁ ∘ h ⸴ pr₂ ∘ h
+    pr-η : (h : A ⇒ X ×̇ Y) → h ≡ pr₁ ∘ h ⸴ pr₂ ∘ h
     pr-η h = AxProd .snd (_ , (pr₁ ∘ h) , (pr₂ ∘ h)) .snd (refl , refl) (pr₁≡ , pr₂≡)
 ```
 
@@ -154,4 +161,3 @@ record ETCS : Set₁ where
   open Data (etcs .fst) public
   open Data.Axiom (etcs .snd) public
 ```
- 

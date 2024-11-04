@@ -319,3 +319,17 @@ isoUnique-isProduct a@{a = P , p , q} b@{b = P′ , p′ , q′} Pa Pb =
       u = Pb a .snd
   in j , (j′ , jj′ , j′j) , c , u
 ```
+
+```agda
+-- Lemma 2.6.10
+⸴-distrib-∘ : (a : Elm A) → (f ⸴ g) ∘ a ≡ f （ a ） ⸴ g （ a ）
+⸴-distrib-∘ {f} {g} a = AxProd .snd (_ , (f （ a ）) , (g （ a ）)) .snd (p , q) (pr₁≡ , pr₂≡) where
+  p =                       begin
+    pr₁ ∘ ((f ⸴ g) ∘ a)     ≡˘⟨ AxAss ⟩
+    (pr₁ ∘ (f ⸴ g)) ∘ a     ≡⟨ cong (_∘ a) pr₁≡ ⟩
+    f ∘ a                   ∎ where open ≡-Reasoning
+  q =                       begin
+    pr₂ ∘ ((f ⸴ g) ∘ a)     ≡˘⟨ AxAss ⟩
+    (pr₂ ∘ (f ⸴ g)) ∘ a     ≡⟨ cong (_∘ a) pr₂≡ ⟩
+    g ∘ a                   ∎ where open ≡-Reasoning
+```
