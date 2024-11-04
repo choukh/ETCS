@@ -333,3 +333,26 @@ isoUnique-isProduct a@{a = P , p , q} b@{b = P′ , p′ , q′} Pa Pb =
     (pr₂ ∘ (f ⸴ g)) ∘ a     ≡⟨ cong (_∘ a) pr₂≡ ⟩
     g ∘ a                   ∎ where open ≡-Reasoning
 ```
+
+```agda
+-- Examples 2.6.11 i
+Δ⟨_⟩ : (X : CSet) → X ⇒ X ×̇ X
+Δ⟨ X ⟩ = id ⸴ id
+```
+
+```agda
+-- Exercise 2.6.12
+⸴-inj₁ : (f ⸴ g) ≡ (f′ ⸴ g′) → f ≡ f′
+⸴-inj₁ {f} {g} {f′} {g′} eq = begin
+  f                         ≡˘⟨ pr₁≡ ⟩
+  pr₁ ∘ (f ⸴ g)             ≡⟨ cong (pr₁ ∘_) eq ⟩
+  pr₁ ∘ (f′ ⸴ g′)           ≡⟨ pr₁≡ ⟩
+  f′                        ∎ where open ≡-Reasoning
+
+⸴-inj₂ : (f ⸴ g) ≡ (f′ ⸴ g′) → g ≡ g′
+⸴-inj₂ {f} {g} {f′} {g′} eq = begin
+  g                         ≡˘⟨ pr₂≡ ⟩
+  pr₂ ∘ (f ⸴ g)             ≡⟨ cong (pr₂ ∘_) eq ⟩
+  pr₂ ∘ (f′ ⸴ g′)           ≡⟨ pr₂≡ ⟩
+  g′                        ∎ where open ≡-Reasoning
+```
