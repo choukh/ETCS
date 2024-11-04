@@ -286,13 +286,36 @@ isoInvariant-isProduct-XY a@(P , p , q) (j , j⁻¹ , jj⁻¹ , j⁻¹j) (k , k�
 -- Lemma 2.6.8
 isoUnique-isProduct : isoUnique⟨ ProductCommuter ⟩ (isProduct {X} {Y})
 isoUnique-isProduct a@{a = P , p , q} b@{b = P′ , p′ , q′} Pa Pb =
-  let j : P ⇒ P′
-      j = Pb a .fst .fst
+  let open ≡-Reasoning
+      ((j , p′j , q′j) , _) = Pb a
+      ((j′ , pj′ , qj′) , _) = Pa b
+      p′jj′ =                       begin
+        p′ ∘ (j ∘ j′)               ≡˘⟨ AxAss ⟩
+        (p′ ∘ j) ∘ j′               ≡⟨ cong (_∘ j′) p′j ⟩
+        p ∘ j′                      ≡⟨ pj′ ⟩
+        p′                          ∎
+      q′jj′ =                       begin
+        q′ ∘ (j ∘ j′)               ≡˘⟨ AxAss ⟩
+        (q′ ∘ j) ∘ j′               ≡⟨ cong (_∘ j′) q′j ⟩
+        q ∘ j′                      ≡⟨ qj′ ⟩
+        q′                          ∎
+      pj′j =                        begin
+        p ∘ (j′ ∘ j)                ≡˘⟨ AxAss ⟩
+        (p ∘ j′) ∘ j                ≡⟨ cong (_∘ j) pj′ ⟩
+        p′ ∘ j                      ≡⟨ p′j ⟩
+        p                           ∎
+      qj′j =                        begin
+        q ∘ (j′ ∘ j)                ≡˘⟨ AxAss ⟩
+        (q ∘ j′) ∘ j                ≡⟨ cong (_∘ j) qj′ ⟩
+        q′ ∘ j                      ≡⟨ q′j ⟩
+        q                           ∎
+      jj′ : j ∘ j′ ≡ id
+      jj′ = Pb b .snd (p′jj′ , q′jj′) (AxIdʳ , AxIdʳ)
+      j′j : j′ ∘ j ≡ id
+      j′j = Pa a .snd (pj′j , qj′j) (AxIdʳ , AxIdʳ)
       c : p′ ∘ j ≡ p × q′ ∘ j ≡ q
       c = Pb a .fst .snd
       u : unique (λ j → p′ ∘ j ≡ p × q′ ∘ j ≡ q)
       u = Pb a .snd
-      iso : isIso j
-      iso = {!   !}
-  in j , iso , c , u
+  in j , (j′ , jj′ , j′j) , c , u
 ```
