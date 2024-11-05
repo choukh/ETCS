@@ -27,15 +27,15 @@ universal A B P = ∀ x → (Σ (B x) (P x)) × unique (P x)
 -- 2.1 The data
 record Data : Set₁ where
   infixl 10 _→̇_
-  infix 10 _∘̇_
+  infix 10 _∘_
   field
     CSet : Set
     _→̇_ : (X Y : CSet) → Set
-    _∘̇_ : {X Y Z : CSet} (g : Y →̇ Z) (f : X →̇ Y) → (X →̇ Z)
-    iḋ⟨_⟩ : (X : CSet) → X →̇ X
+    _∘_ : {X Y Z : CSet} (g : Y →̇ Z) (f : X →̇ Y) → (X →̇ Z)
+    id⟨_⟩ : (X : CSet) → X →̇ X
 
-  iḋ : {X : CSet} → X →̇ X
-  iḋ {X} = iḋ⟨ X ⟩
+  id : {X : CSet} → X →̇ X
+  id {X} = id⟨ X ⟩
 ```
 
 ```agda
@@ -55,9 +55,9 @@ record Data : Set₁ where
 ```agda
     field
       -- Axiom 1
-      AxAss : (h ∘̇ g) ∘̇ f ≡ h ∘̇ (g ∘̇ f)
-      AxIdˡ : iḋ ∘̇ f ≡ f
-      AxIdʳ : f ∘̇ iḋ ≡ f
+      AxAss : (h ∘ g) ∘ f ≡ h ∘ (g ∘ f)
+      AxIdˡ : id ∘ f ≡ f
+      AxIdʳ : f ∘ id ≡ f
 ```
 
 ```agda
@@ -88,7 +88,7 @@ record Data : Set₁ where
 
 ```agda
     _⦅_⦆ : (f : X →̇ Y) → ∀[ x ∈ X ] Elm Y
-    f ⦅ x ⦆ = f ∘̇ x
+    f ⦅ x ⦆ = f ∘ x
 
     -- Axiom 3
     field AxFunExt : (∀[ x ∈ X ] f ⦅ x ⦆ ≡ g ⦅ x ⦆) → f ≡ g
@@ -118,7 +118,7 @@ record Data : Set₁ where
     ProductDiagram X Y = Σ CSet λ P → P →̇ X × P →̇ Y
 
     ProductCommuter : Commuter (ProductDiagram X Y) _
-    ProductCommuter = fst , λ { (A , f , g) (P , p , q) h → p ∘̇ h ≡ f × q ∘̇ h ≡ g }
+    ProductCommuter = fst , λ { (A , f , g) (P , p , q) h → p ∘ h ≡ f × q ∘ h ≡ g }
 
     -- Definition 2.6.2
     isProduct : ProductDiagram X Y → Set
@@ -143,14 +143,14 @@ record Data : Set₁ where
     _,̇_ : A →̇ X → A →̇ Y → A →̇ X ×̇ Y
     f ,̇ g = AxProd .snd (_ , f , g) .fst .fst
 
-    pr₁≡ : pr₁ ∘̇ ( f ,̇ g ) ≡ f
+    pr₁≡ : pr₁ ∘ ( f ,̇ g ) ≡ f
     pr₁≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .fst
 
-    pr₂≡ : pr₂ ∘̇ ( f ,̇ g ) ≡ g
+    pr₂≡ : pr₂ ∘ ( f ,̇ g ) ≡ g
     pr₂≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .snd
 
-    ×̇-η : (h : A →̇ X ×̇ Y) → h ≡ pr₁ ∘̇ h ,̇ pr₂ ∘̇ h
-    ×̇-η h = AxProd .snd (_ , (pr₁ ∘̇ h) , (pr₂ ∘̇ h)) .snd (refl , refl) (pr₁≡ , pr₂≡)
+    ×̇-η : (h : A →̇ X ×̇ Y) → h ≡ pr₁ ∘ h ,̇ pr₂ ∘ h
+    ×̇-η h = AxProd .snd (_ , (pr₁ ∘ h) , (pr₂ ∘ h)) .snd (refl , refl) (pr₁≡ , pr₂≡)
 ```
 
 ```agda
