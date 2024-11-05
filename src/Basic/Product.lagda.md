@@ -1,188 +1,12 @@
 ```agda
 open import Axiom
-module Axiom.PartOne (ℳ : ETCS) where
+module Basic.Product (ℳ : ETCS) where
 open ETCS ℳ
 
+open import Basic.Isomorphism ℳ
+open import Basic.Membership ℳ
 open import Function using (_$_) renaming (id to id⒨)
 open import Relation.Nullary using (¬_)
-```
-
-```agda
-AssIdˡ : {f : X →̇ Y} {g : Y →̇ Z} {h : Z →̇ Y} → h ∘ g ≡ id → h ∘ (g ∘ f) ≡ f
-AssIdˡ {f} {g} {h} hg = begin
-  h ∘ (g ∘ f)           ≡˘⟨ AxAss ⟩
-  (h ∘ g) ∘ f           ≡⟨ cong (_∘ f) hg ⟩
-  id ∘ f                ≡⟨ AxIdˡ ⟩
-  f                     ∎ where open ≡-Reasoning
-
-AssIdʳ : {f : X →̇ Y} {g : W →̇ X} {h : X →̇ W} → g ∘ h ≡ id → (f ∘ g) ∘ h ≡ f
-AssIdʳ {f} {g} {h} hg = begin
-  (f ∘ g) ∘ h           ≡⟨ AxAss ⟩
-  f ∘ (g ∘ h)           ≡⟨ cong (f ∘_) hg ⟩
-  f ∘ id                ≡⟨ AxIdʳ ⟩
-  f                     ∎ where open ≡-Reasoning
-```
-
-```agda
--- Definition 2.2.2
-isInv : (f : X →̇ Y) (g : Y →̇ X) → Set
-isInv f g = f ∘ g ≡ id × g ∘ f ≡ id
-```
-
-```agda
--- Lemma 2.2.4
-unique-isInv : unique (isInv f)
-unique-isInv {f} {a = g} {b = g′} (_ , p) (q , _) = begin
-  g             ≡˘⟨ AssIdʳ q ⟩
-  (g ∘ f) ∘ g′  ≡⟨ AxAss ⟩
-  g ∘ (f ∘ g′)  ≡⟨ AssIdˡ p ⟩
-  g′            ∎ where open ≡-Reasoning
-```
-
-```agda
--- Definition 2.2.5
-isIso : (f : X →̇ Y) → Set
-isIso {X} {Y} f = Σ (Y →̇ X) λ g → isInv f g
-```
-
-```agda
--- Definition 2.2.8
-_≅_ : CSet → CSet → Set
-X ≅ Y = Σ (X →̇ Y) isIso
-```
-
-```agda
--- Lemma 2.2.6
-isIso-id : isIso id⟨ X ⟩
-isIso-id = id , AxIdˡ , AxIdˡ
-
-isIso-∘ : isIso f → isIso g → isIso (g ∘ f)
-isIso-∘ {f} {g} (f⁻¹ , ff⁻¹ , f⁻¹f) (g⁻¹ , gg⁻¹ , g⁻¹g) = f⁻¹ ∘ g⁻¹ , p , q where
-  p =                       begin
-    (g ∘ f) ∘ (f⁻¹ ∘ g⁻¹)   ≡⟨ AxAss ⟩
-    g ∘ (f ∘ (f⁻¹ ∘ g⁻¹))   ≡⟨ cong (g ∘_) (AssIdˡ ff⁻¹) ⟩
-    g ∘ g⁻¹                 ≡⟨ gg⁻¹ ⟩
-    id                      ∎ where open ≡-Reasoning
-  q =                       begin
-    (f⁻¹ ∘ g⁻¹) ∘ (g ∘ f)   ≡⟨ AxAss ⟩
-    f⁻¹ ∘ (g⁻¹ ∘ (g ∘ f))   ≡⟨ cong (f⁻¹ ∘_) (AssIdˡ g⁻¹g) ⟩
-    f⁻¹ ∘ f                 ≡⟨ f⁻¹f ⟩
-    id                      ∎ where open ≡-Reasoning
-
-isIso-⁻¹ : ((f⁻¹ , _) : isIso f) → isIso f⁻¹
-isIso-⁻¹ {f} (f⁻¹ , p , q) = f , q , p
-```
-
-```agda
--- Lemma 2.2.9
-≅-refl : X ≅ X
-≅-refl = id , isIso-id
-
-≅-trans : X ≅ Y → Y ≅ Z → X ≅ Z
-≅-trans (f , if) (g , ig) = g ∘ f , isIso-∘ if ig
-
-≅-sym : X ≅ Y → Y ≅ X
-≅-sym (f , i@(f⁻¹ , _)) = f⁻¹ , isIso-⁻¹ i
-```
-
-```agda
-isoInvariant⟨_⟩ : {A : Set ℓ} (C : Commuter A ℓ′) (P : A → Set ℓ′′) → Set _
-isoInvariant⟨_⟩ (π , comm) P = ∀ {a b} (j : π a →̇ π b) → isIso j → comm a b j → P a → P b
-
-isoUnique⟨_⟩ : {A : Set ℓ} (C : Commuter A ℓ′) (P : A → Set ℓ′′) → Set _
-isoUnique⟨_⟩ (π , comm) P = ∀ {a b} → P a → P b → Σ (π a →̇ π b) λ j → isIso j × comm a b j × unique (comm a b)
-
-isoInvariant : (P : CSet → Set) → Set
-isoInvariant P = isoInvariant⟨ id⒨ , (λ _ _ _ → ⊤) ⟩ P
-
-isoUnique : (P : CSet → Set) → Set
-isoUnique P = isoUnique⟨ id⒨ , (λ _ _ _ → ⊤) ⟩ P
-```
-
-```agda
--- Lemma 2.3.3
-isoInvariant-terminal : isoInvariant terminal
-isoInvariant-terminal {a = T} {b = T′} j (j⁻¹ , jj⁻¹ , _) tt tml X =
-  let (f , tt) , f! = tml X in
-  (j ∘ f , tt) , λ {f′ g′} _ _ → begin
-    f′                      ≡˘⟨ AssIdˡ jj⁻¹ ⟩
-    j ∘ (j⁻¹ ∘ f′)          ≡⟨ cong (j ∘_) (f! tt tt) ⟩
-    j ∘ (j⁻¹ ∘ g′)          ≡⟨ AssIdˡ jj⁻¹ ⟩
-    g′                      ∎ where open ≡-Reasoning
-```
-
-```agda
--- Lemma 2.3.4
-isoUnique-terminal : isoUnique terminal
-isoUnique-terminal {a = T} {b = T′} tT tT′ =
-  let f : T →̇ T′
-      f = tT′ T .fst .fst
-      f′ : T′ →̇ T
-      f′ = tT T′ .fst .fst
-      ff′ : f ∘ f′ ≡ id
-      ff′ = tT′ T′ .snd tt tt
-      f′f : f′ ∘ f ≡ id
-      f′f = tT T .snd tt tt
-      f≡g : {f g : T →̇ T′} → f ≡ g
-      f≡g = tT′ T .snd tt tt
-  in f , (f′ , ff′ , f′f) , tt , λ _ _ → f≡g
-```
-
-```agda
-!⟨_⟩ : (X : CSet) → X →̇ １
-!⟨ X ⟩ = AxTml .snd X .fst .fst
-
-! : X →̇ １
-! {X} = !⟨ X ⟩
-```
-
-```agda
--- Lemma 2.3.7
-id-wellDefined : ∀[ x ∈ X ] id ⦅ x ⦆ ≡ x
-id-wellDefined x = AxIdˡ
-
-∘-wellDefined : ∀[ x ∈ X ] (g ∘ f) ⦅ x ⦆ ≡ g ⦅ f ⦅ x ⦆ ⦆
-∘-wellDefined _ = AxAss
-```
-
-```agda
-oneElement : CSet → Set
-oneElement X = Elm X × ∀ {x y : Elm X} → x ≡ y
-
-* : Elm １
-* = AxTml .snd １ .fst .fst
-
-oneElement-１ : oneElement １
-oneElement-１ = * , AxTml .snd １ .snd tt tt
-```
-
-```agda
--- Lemma 2.4.1
-terminal→oneElement : terminal X → oneElement X
-terminal→oneElement tml = tml １ .fst .fst , tml １ .snd tt tt
-
-oneElement→terminal : oneElement X → terminal X
-oneElement→terminal (x , x!) = isoInvariant-terminal
-  x (! , AxFunExt q , p) tt (AxTml .snd) where
-    p : {x y : Elm １} → x ≡ y
-    p = AxTml .snd １ .snd tt tt
-    q = λ y →         begin
-      (x ∘ !) ∘ y     ≡⟨ AssIdʳ p ⟩
-      x               ≡⟨ x! ⟩
-      y               ≡˘⟨ AxIdˡ ⟩
-      id ∘ y          ∎ where open ≡-Reasoning
-```
-
-```agda
--- Example 2.5.2
-_ : ¬ empty １
-_ = λ p → p *
-```
-
-```agda
--- Exercise 2.6.4
-_ : ((P , _) : ProductDiagram X Y) → empty X → empty P
-_ = λ (P , p , _) eX q → eX (p ⦅ q ⦆)
 ```
 
 ```agda
@@ -392,4 +216,22 @@ module _ {X X′ Y Y′ : CSet} where
         (g ∘ pr₂) ∘ (x ,̇ y)       ≡⟨ AxAss ⟩
         g ⦅ pr₂ ⦅ x ,̇ y ⦆ ⦆       ≡⟨ cong (g ∘_) pr₂-≡ ⟩
         g ⦅ y ⦆                   ∎
+```
+
+```agda
+-- Proposition 2.6.15 i
+×̇-sym : X ×̇ Y ≅ Y ×̇ X
+×̇-sym = {!   !}
+```
+
+```agda
+-- Proposition 2.6.15 ii / Exercise 2.6.16
+×̇-idʳ : X ×̇ １ ≅ X
+×̇-idʳ = {!   !}
+```
+
+```agda
+-- Proposition 2.6.15 iii / Exercise 2.6.16
+×̇-assoc : X ×̇ (Y ×̇ Z) ≅ (X ×̇ Y) ×̇ Z
+×̇-assoc = {!   !}
 ```
