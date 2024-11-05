@@ -146,14 +146,15 @@ isoUnique-isProduct a@{a = P , p , q} b@{b = P′ , p′ , q′} Pa Pb =
 -- Lemma 2.6.10
 ,̇-distrib-∘ : {a : Elm A} → (f ,̇ g) ∘ a ≡ f ⦅ a ⦆ ,̇ g ⦅ a ⦆
 ,̇-distrib-∘ {f} {g} {a} = AxProd .snd (_ , f ⦅ a ⦆ , g ⦅ a ⦆) .snd (p , q) (pr₁-≡ , pr₂-≡) where
+  open ≡-Reasoning
   p =                       begin
     pr₁ ∘ ((f ,̇ g) ∘ a)     ≡˘⟨ AxAss ⟩
     (pr₁ ∘ (f ,̇ g)) ∘ a     ≡⟨ cong (_∘ a) pr₁-≡ ⟩
-    f ∘ a                   ∎ where open ≡-Reasoning
+    f ∘ a                   ∎
   q =                       begin
     pr₂ ∘ ((f ,̇ g) ∘ a)     ≡˘⟨ AxAss ⟩
     (pr₂ ∘ (f ,̇ g)) ∘ a     ≡⟨ cong (_∘ a) pr₂-≡ ⟩
-    g ∘ a                   ∎ where open ≡-Reasoning
+    g ∘ a                   ∎
 ```
 
 ```agda
@@ -254,5 +255,52 @@ swap-swap = AxFunExt λ p →            begin
 ```agda
 -- Proposition 2.6.15 iii
 ×̇-assoc : X ×̇ (Y ×̇ Z) ≅ (X ×̇ Y) ×̇ Z
-×̇-assoc = {!   !}
+×̇-assoc = i , j , AxFunExt ij , AxFunExt ji where
+  open ≡-Reasoning
+  i = ((pr₁ ,̇ pr₁ ∘ pr₂) ,̇ pr₂ ∘ pr₂)
+  j = pr₁ ∘ pr₁ ,̇ pr₂ ∘ pr₁ ,̇ pr₂
+  ij = λ p → let
+      y = (pr₂ ∘ pr₁) ∘ p ,̇ pr₂ ∘ p
+      xy = (pr₁ ∘ pr₁) ∘ p ,̇ y
+    in                                                  begin
+    (i ∘ j) ∘ p                                         ≡⟨ AxAss ⟩
+    i ∘ (j ∘ p)                                         ≡⟨ cong (i ∘_) ,̇-distrib-∘ ⟩
+    i ∘ ((pr₁ ∘ pr₁) ∘ p ,̇ (pr₂ ∘ pr₁ ,̇ pr₂) ∘ p)       ≡⟨ cong (λ x → i ∘ ((pr₁ ∘ pr₁) ∘ p ,̇ x)) ,̇-distrib-∘ ⟩
+    i ∘ ((pr₁ ∘ pr₁) ∘ p ,̇ y)                           ≡⟨ ,̇-distrib-∘ ⟩
+    (pr₁ ,̇ pr₁ ∘ pr₂) ∘ xy ,̇ (pr₂ ∘ pr₂) ∘ xy           ≡⟨ cong ((pr₁ ,̇ pr₁ ∘ pr₂) ∘ xy ,̇_) AxAss ⟩
+    (pr₁ ,̇ pr₁ ∘ pr₂) ∘ xy ,̇ pr₂ ∘ (pr₂ ∘ xy)           ≡⟨ cong ((pr₁ ,̇ pr₁ ∘ pr₂) ∘ xy ,̇_) (cong (pr₂ ∘_) pr₂-≡) ⟩
+    (pr₁ ,̇ pr₁ ∘ pr₂) ∘ xy ,̇ pr₂ ∘ y                    ≡⟨ cong ((pr₁ ,̇ pr₁ ∘ pr₂) ∘ xy ,̇_) pr₂-≡ ⟩
+    (pr₁ ,̇ pr₁ ∘ pr₂) ∘ xy ,̇ pr₂ ∘ p                    ≡⟨ cong (_,̇ pr₂ ∘ p) ,̇-distrib-∘ ⟩
+    (pr₁ ∘ xy ,̇ (pr₁ ∘ pr₂) ∘ xy) ,̇ pr₂ ∘ p             ≡⟨ cong (λ x → (x ,̇ (pr₁ ∘ pr₂) ∘ xy) ,̇ pr₂ ∘ p) pr₁-≡ ⟩
+    ((pr₁ ∘ pr₁) ∘ p ,̇ (pr₁ ∘ pr₂) ∘ xy) ,̇ pr₂ ∘ p      ≡⟨ cong (λ x → (x ,̇ (pr₁ ∘ pr₂) ∘ xy) ,̇ pr₂ ∘ p) AxAss ⟩
+    (pr₁ ∘ (pr₁ ∘ p) ,̇ (pr₁ ∘ pr₂) ∘ xy) ,̇ pr₂ ∘ p      ≡⟨ cong (λ x → (pr₁ ∘ (pr₁ ∘ p) ,̇ x) ,̇ pr₂ ∘ p) AxAss ⟩
+    (pr₁ ∘ (pr₁ ∘ p) ,̇ pr₁ ∘ (pr₂ ∘ xy)) ,̇ pr₂ ∘ p      ≡⟨ cong (λ x → (pr₁ ∘ (pr₁ ∘ p) ,̇ x) ,̇ pr₂ ∘ p) ((cong (pr₁ ∘_) pr₂-≡)) ⟩
+    (pr₁ ∘ (pr₁ ∘ p) ,̇ pr₁ ∘ y) ,̇ pr₂ ∘ p               ≡⟨ cong (λ x → (pr₁ ∘ (pr₁ ∘ p) ,̇ x) ,̇ pr₂ ∘ p) pr₁-≡ ⟩
+    (pr₁ ∘ (pr₁ ∘ p) ,̇ (pr₂ ∘ pr₁) ∘ p) ,̇ pr₂ ∘ p       ≡⟨ cong (λ x → (pr₁ ∘ (pr₁ ∘ p) ,̇ x) ,̇ pr₂ ∘ p) AxAss ⟩
+    (pr₁ ∘ (pr₁ ∘ p) ,̇ pr₂ ∘ (pr₁ ∘ p)) ,̇ pr₂ ∘ p       ≡˘⟨ cong (_,̇ (pr₂ ∘ p)) ×̇-η ⟩
+    pr₁ ∘ p ,̇ pr₂ ∘ p                                   ≡˘⟨ ×̇-η ⟩
+    p                                                   ≡˘⟨ AxIdˡ ⟩
+    id ∘ p                                              ∎
+  ji = λ p → let
+      x = pr₁ ∘ p ,̇ pr₁ ∘ (pr₂ ∘ p)
+      xy = x ,̇ pr₂ ∘ (pr₂ ∘ p)
+    in                                                  begin
+    (j ∘ i) ∘ p                                         ≡⟨ AxAss ⟩
+    j ∘ (i ∘ p)                                         ≡⟨ cong (j ∘_) ,̇-distrib-∘ ⟩
+    j ∘ ((pr₁ ,̇ pr₁ ∘ pr₂) ∘ p ,̇ (pr₂ ∘ pr₂) ∘ p)       ≡⟨ cong (λ x → j ∘ ((pr₁ ,̇ pr₁ ∘ pr₂) ∘ p ,̇ x)) AxAss ⟩
+    j ∘ ((pr₁ ,̇ pr₁ ∘ pr₂) ∘ p ,̇ pr₂ ∘ (pr₂ ∘ p))       ≡⟨ cong (λ x → j ∘ (x ,̇ pr₂ ∘ (pr₂ ∘ p))) ,̇-distrib-∘ ⟩
+    j ∘ ((pr₁ ∘ p ,̇ (pr₁ ∘ pr₂) ∘ p) ,̇ pr₂ ∘ (pr₂ ∘ p)) ≡⟨ cong (λ x → j ∘ ((pr₁ ∘ p ,̇ x) ,̇ pr₂ ∘ (pr₂ ∘ p))) AxAss ⟩
+    j ∘ (x ,̇ pr₂ ∘ (pr₂ ∘ p))                           ≡⟨ ,̇-distrib-∘ ⟩
+    (pr₁ ∘ pr₁) ∘ xy ,̇ (pr₂ ∘ pr₁ ,̇ pr₂) ∘ xy           ≡⟨ cong (_,̇ (pr₂ ∘ pr₁ ,̇ pr₂) ∘ xy) AxAss ⟩
+    pr₁ ∘ (pr₁ ∘ xy) ,̇ (pr₂ ∘ pr₁ ,̇ pr₂) ∘ xy           ≡⟨ cong (_,̇ (pr₂ ∘ pr₁ ,̇ pr₂) ∘ xy) (cong (pr₁ ∘_) pr₁-≡) ⟩
+    pr₁ ∘ x ,̇ (pr₂ ∘ pr₁ ,̇ pr₂) ∘ xy                    ≡⟨ cong (_,̇ (pr₂ ∘ pr₁ ,̇ pr₂) ∘ xy) pr₁-≡ ⟩
+    pr₁ ∘ p ,̇ (pr₂ ∘ pr₁ ,̇ pr₂) ∘ xy                    ≡⟨ cong (pr₁ ∘ p ,̇_) ,̇-distrib-∘ ⟩
+    pr₁ ∘ p ,̇ ((pr₂ ∘ pr₁) ∘ xy ,̇ pr₂ ∘ xy)             ≡⟨ cong (λ x → pr₁ ∘ p ,̇ (x ,̇ pr₂ ∘ xy)) AxAss ⟩
+    pr₁ ∘ p ,̇ (pr₂ ∘ (pr₁ ∘ xy) ,̇ pr₂ ∘ xy)             ≡⟨ cong (λ x → pr₁ ∘ p ,̇ (x ,̇ pr₂ ∘ xy)) (cong (pr₂ ∘_) pr₁-≡) ⟩
+    pr₁ ∘ p ,̇ (pr₂ ∘ x ,̇ pr₂ ∘ xy)                      ≡⟨ cong (λ x → pr₁ ∘ p ,̇ (x ,̇ pr₂ ∘ xy)) pr₂-≡ ⟩
+    pr₁ ∘ p ,̇ (pr₁ ∘ (pr₂ ∘ p) ,̇ pr₂ ∘ xy)              ≡⟨ cong (λ x → pr₁ ∘ p ,̇ pr₁ ∘ (pr₂ ∘ p) ,̇ x) pr₂-≡ ⟩
+    pr₁ ∘ p ,̇ (pr₁ ∘ (pr₂ ∘ p) ,̇ pr₂ ∘ (pr₂ ∘ p))       ≡˘⟨ cong ((pr₁ ∘ p) ,̇_) ×̇-η ⟩
+    pr₁ ∘ p ,̇ pr₂ ∘ p                                   ≡˘⟨ ×̇-η ⟩
+    p                                                   ≡˘⟨ AxIdˡ ⟩
+    id ∘ p                                              ∎
 ```

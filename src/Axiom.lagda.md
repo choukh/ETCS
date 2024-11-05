@@ -130,7 +130,7 @@ record Data : Set₁ where
 ```
 
 ```agda
-    infixl 15 _×̇_
+    infixr 15 _×̇_
     _×̇_ : CSet → CSet → CSet
     X ×̇ Y = AxProd {X} {Y} .fst .fst
 
@@ -140,7 +140,7 @@ record Data : Set₁ where
     pr₂ : X ×̇ Y →̇ Y
     pr₂ {X} {Y} = AxProd {X} {Y} .fst .snd .snd
 
-    infix 5 _,̇_
+    infixr 5 _,̇_
     _,̇_ : A →̇ X → A →̇ Y → A →̇ X ×̇ Y
     f ,̇ g = AxProd .snd (_ , f , g) .fst .fst
 
