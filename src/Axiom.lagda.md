@@ -134,24 +134,25 @@ record Data : Set₁ where
     _×̇_ : CSet → CSet → CSet
     X ×̇ Y = AxProd {X} {Y} .fst .fst
 
-    pr₁ : X ×̇ Y →̇ X
-    pr₁ {X} {Y} = AxProd {X} {Y} .fst .snd .fst
-
-    pr₂ : X ×̇ Y →̇ Y
-    pr₂ {X} {Y} = AxProd {X} {Y} .fst .snd .snd
-
     infixr 5 _,̇_
     _,̇_ : A →̇ X → A →̇ Y → A →̇ X ×̇ Y
     f ,̇ g = AxProd .snd (_ , f , g) .fst .fst
+```
 
-    pr₁-≡ : pr₁ ∘ ( f ,̇ g ) ≡ f
-    pr₁-≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .fst
+```agda
+    FuncSetDiagram : (X Y : CSet) → Set
+    FuncSetDiagram X Y = Σ CSet λ F → F ×̇ X →̇ Y
 
-    pr₂-≡ : pr₂ ∘ ( f ,̇ g ) ≡ g
-    pr₂-≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .snd
+    FuncSetCommuter : Commuter (FuncSetDiagram X Y) _
+    FuncSetCommuter {X} = fst , λ { (A , q) (F , e) q̅ →
+      ∀[ a ∈ A ] ∀[ x ∈ X ] q ⦅ a ,̇ x ⦆ ≡ e ⦅ q̅ ⦅ a ⦆ ,̇ x ⦆ }
 
-    ×̇-η : {h : A →̇ X ×̇ Y} → h ≡ pr₁ ∘ h ,̇ pr₂ ∘ h
-    ×̇-η {h} = AxProd .snd (_ , (pr₁ ∘ h) , (pr₂ ∘ h)) .snd (refl , refl) (pr₁-≡ , pr₂-≡)
+    -- Definition 2.7.3
+    isFuncSet : FuncSetDiagram X Y → Set
+    isFuncSet = universal⟨ FuncSetCommuter ⟩
+
+    -- Axiom 6
+    field AxFuncSet : Σ (FuncSetDiagram X Y) isFuncSet
 ```
 
 ```agda

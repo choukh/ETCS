@@ -143,6 +143,23 @@ isoUnique-isProduct a@{a = P , p , q} b@{b = P′ , p′ , q′} Pa Pb =
 ```
 
 ```agda
+pr₁ : X ×̇ Y →̇ X
+pr₁ {X} {Y} = AxProd {X} {Y} .fst .snd .fst
+
+pr₂ : X ×̇ Y →̇ Y
+pr₂ {X} {Y} = AxProd {X} {Y} .fst .snd .snd
+
+pr₁-≡ : pr₁ ∘ ( f ,̇ g ) ≡ f
+pr₁-≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .fst
+
+pr₂-≡ : pr₂ ∘ ( f ,̇ g ) ≡ g
+pr₂-≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .snd
+
+×̇-η : {h : A →̇ X ×̇ Y} → h ≡ pr₁ ∘ h ,̇ pr₂ ∘ h
+×̇-η {h} = AxProd .snd (_ , (pr₁ ∘ h) , (pr₂ ∘ h)) .snd (refl , refl) (pr₁-≡ , pr₂-≡)
+```
+
+```agda
 -- Lemma 2.6.10
 ,̇-distrib-∘ : {a : Elm A} → (f ,̇ g) ∘ a ≡ f ⦅ a ⦆ ,̇ g ⦅ a ⦆
 ,̇-distrib-∘ {f} {g} {a} = AxProd .snd (_ , f ⦅ a ⦆ , g ⦅ a ⦆) .snd (p , q) (pr₁-≡ , pr₂-≡) where
