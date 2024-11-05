@@ -211,7 +211,8 @@ record Data : Set₁ where
     NatDiagram = Σ CSet λ N → Elm N × N →̇ N
 
     NatCommuter : Commuter NatDiagram
-    NatCommuter = fst , λ (N , z , σ) (X , a , r) x → ∀[ n ∈ N ] (x ⦅ z ⦆ ≡ a × x ⦅ σ ⦅ n ⦆ ⦆ ≡ r ⦅ x ⦅ n ⦆ ⦆)
+    NatCommuter = fst , λ (N , z , σ) (X , a , r) x →
+      ∀[ n ∈ N ] (x ⦅ z ⦆ ≡ a × x ⦅ σ ⦅ n ⦆ ⦆ ≡ r ⦅ x ⦅ n ⦆ ⦆)
 
     isNat : NatDiagram → Set
     isNat = universal⟨ NatCommuter ⟩
