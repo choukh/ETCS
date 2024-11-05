@@ -4,8 +4,7 @@ module Axiom where
 open import Level public using (Level; suc; _⊔_)
 open import Data.Empty public using (⊥)
 open import Data.Unit public using (⊤; tt)
-open import Data.Product public
-  using (Σ; _×_; _,_)
+open import Data.Product public using (Σ; _×_; _,_)
   renaming (proj₁ to fst; proj₂ to snd)
 open import Relation.Binary.PropositionalEquality public
 ```
@@ -27,22 +26,22 @@ universal A B P = ∀ x → (Σ (B x) (P x)) × unique (P x)
 ```agda
 -- 2.1 The data
 record Data : Set₁ where
-  infixl 10 _⇒_
-  infix 10 _∘_
+  infixl 10 _→̇_
+  infix 10 _∘̇_
   field
     CSet : Set
-    _⇒_ : (X Y : CSet) → Set
-    _∘_ : {X Y Z : CSet} (g : Y ⇒ Z) (f : X ⇒ Y) → (X ⇒ Z)
-    id⟨_⟩ : (X : CSet) → X ⇒ X
+    _→̇_ : (X Y : CSet) → Set
+    _∘̇_ : {X Y Z : CSet} (g : Y →̇ Z) (f : X →̇ Y) → (X →̇ Z)
+    iḋ⟨_⟩ : (X : CSet) → X →̇ X
 
-  id : {X : CSet} → X ⇒ X
-  id {X} = id⟨ X ⟩
+  iḋ : {X : CSet} → X →̇ X
+  iḋ {X} = iḋ⟨ X ⟩
 ```
 
 ```agda
   variable
     A W X Y Z X′ Y′ : CSet
-    f g h f′ g′ : X ⇒ Y
+    f g h f′ g′ : X →̇ Y
 ```
 
 ## Axioms
@@ -56,15 +55,15 @@ record Data : Set₁ where
 ```agda
     field
       -- Axiom 1
-      AxAss : (h ∘ g) ∘ f ≡ h ∘ (g ∘ f)
-      AxIdˡ : id ∘ f ≡ f
-      AxIdʳ : f ∘ id ≡ f
+      AxAss : (h ∘̇ g) ∘̇ f ≡ h ∘̇ (g ∘̇ f)
+      AxIdˡ : iḋ ∘̇ f ≡ f
+      AxIdʳ : f ∘̇ iḋ ≡ f
 ```
 
 ```agda
     -- Definition 2.3.1
     terminal : CSet → Set
-    terminal T = universal CSet (_⇒ T) (λ _ _ → ⊤)
+    terminal T = universal CSet (_→̇ T) (λ _ _ → ⊤)
 
     -- Axiom 2
     field AxTml : Σ CSet terminal
@@ -75,7 +74,7 @@ record Data : Set₁ where
     𝟏 = AxTml .fst
 
     Elm : CSet → Set
-    Elm = 𝟏 ⇒_
+    Elm = 𝟏 →̇_
 ```
 
 ```agda
@@ -88,11 +87,11 @@ record Data : Set₁ where
 ```
 
 ```agda
-    _（_） : (f : X ⇒ Y) → ∀[ x ∈ X ] Elm Y
-    f （ x ） = f ∘ x
+    _⦅_⦆ : (f : X →̇ Y) → ∀[ x ∈ X ] Elm Y
+    f ⦅ x ⦆ = f ∘̇ x
 
     -- Axiom 3
-    field AxFunExt : (∀[ x ∈ X ] f （ x ） ≡ g （ x ）) → f ≡ g
+    field AxFunExt : (∀[ x ∈ X ] f ⦅ x ⦆ ≡ g ⦅ x ⦆) → f ≡ g
 ```
 
 ```agda
@@ -108,18 +107,18 @@ record Data : Set₁ where
 
 ```agda
     Commuter : (A : Set ℓ) (ℓ′ : Level) → Set (ℓ ⊔ suc ℓ′)
-    Commuter A ℓ′ = Σ (A → CSet) λ π → (a b : A) (j : π a ⇒ π b) → Set ℓ′
+    Commuter A ℓ′ = Σ (A → CSet) λ π → (a b : A) (j : π a →̇ π b) → Set ℓ′
 
     universal⟨_⟩ : {A : Set ℓ} → Commuter A ℓ′ → A → Set _
-    universal⟨_⟩ {ℓ} {ℓ′} {A} C a = let (π , comm) = C in universal A (λ x → π x ⇒ π a) λ x → comm x a
+    universal⟨_⟩ {ℓ} {ℓ′} {A} C a = let (π , comm) = C in universal A (λ x → π x →̇ π a) λ x → comm x a
 ```
 
 ```agda
     ProductDiagram : (X Y : CSet) → Set
-    ProductDiagram X Y = Σ CSet λ P → P ⇒ X × P ⇒ Y
+    ProductDiagram X Y = Σ CSet λ P → P →̇ X × P →̇ Y
 
     ProductCommuter : Commuter (ProductDiagram X Y) _
-    ProductCommuter = fst , λ { (A , f , g) (P , p , q) h → p ∘ h ≡ f × q ∘ h ≡ g }
+    ProductCommuter = fst , λ { (A , f , g) (P , p , q) h → p ∘̇ h ≡ f × q ∘̇ h ≡ g }
 
     -- Definition 2.6.2
     isProduct : ProductDiagram X Y → Set
@@ -134,24 +133,24 @@ record Data : Set₁ where
     _×̇_ : CSet → CSet → CSet
     X ×̇ Y = AxProd {X} {Y} .fst .fst
 
-    pr₁ : X ×̇ Y ⇒ X
+    pr₁ : X ×̇ Y →̇ X
     pr₁ {X} {Y} = AxProd {X} {Y} .fst .snd .fst
 
-    pr₂ : X ×̇ Y ⇒ Y
+    pr₂ : X ×̇ Y →̇ Y
     pr₂ {X} {Y} = AxProd {X} {Y} .fst .snd .snd
 
-    infix 5 _⸴_
-    _⸴_ : A ⇒ X → A ⇒ Y → A ⇒ X ×̇ Y
-    f ⸴ g = AxProd .snd (_ , f , g) .fst .fst
+    infix 5 _,̇_
+    _,̇_ : A →̇ X → A →̇ Y → A →̇ X ×̇ Y
+    f ,̇ g = AxProd .snd (_ , f , g) .fst .fst
 
-    pr₁≡ : pr₁ ∘ ( f ⸴ g ) ≡ f
+    pr₁≡ : pr₁ ∘̇ ( f ,̇ g ) ≡ f
     pr₁≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .fst
 
-    pr₂≡ : pr₂ ∘ ( f ⸴ g ) ≡ g
+    pr₂≡ : pr₂ ∘̇ ( f ,̇ g ) ≡ g
     pr₂≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .snd
 
-    ×̇-η : (h : A ⇒ X ×̇ Y) → h ≡ pr₁ ∘ h ⸴ pr₂ ∘ h
-    ×̇-η h = AxProd .snd (_ , (pr₁ ∘ h) , (pr₂ ∘ h)) .snd (refl , refl) (pr₁≡ , pr₂≡)
+    ×̇-η : (h : A →̇ X ×̇ Y) → h ≡ pr₁ ∘̇ h ,̇ pr₂ ∘̇ h
+    ×̇-η h = AxProd .snd (_ , (pr₁ ∘̇ h) , (pr₂ ∘̇ h)) .snd (refl , refl) (pr₁≡ , pr₂≡)
 ```
 
 ```agda
