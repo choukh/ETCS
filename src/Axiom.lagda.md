@@ -165,8 +165,11 @@ record Data : Set₁ where
 
 ```agda
     -- Definition 3.1.4
+    _is-a-fibre-of_over_ : {U : CSet} (i : U →̇ X) (f : X →̇ Y) (y : Elm Y) → Set
+    i is-a-fibre-of f over y = ∀[ u ∈ _ ] f ⦅ i ⦅ u ⦆ ⦆ ≡ y
+
     FibreDiagram : (f : X →̇ Y) (y : Elm Y) → Set
-    FibreDiagram {X} f y = Σ CSet λ U → Σ (U →̇ X) λ i → ∀[ u ∈ U ] f ⦅ i ⦅ u ⦆ ⦆ ≡ y
+    FibreDiagram {X} f y = Σ CSet λ U → Σ (U →̇ X) λ i → i is-a-fibre-of f over y
 
     FibreCommuter : {f : X →̇ Y} {y : Elm Y} → Commuter (FibreDiagram f y)
     FibreCommuter = fst , λ { (A , q , fqa) (U , i , fiu) q̅ → q ≡ i ∘ q̅ }
@@ -178,6 +181,26 @@ record Data : Set₁ where
 ```agda
     -- Axiom 7
     field AxFibre : {f : X →̇ Y} {y : Elm Y} → Σ (FibreDiagram f y) isFibre
+```
+
+### Axiom 8
+
+```agda
+    -- Definition 3.2.1
+    SubClsDiagram : Set
+    SubClsDiagram = Σ CSet λ Ω → Σ CSet λ T → T →̇ Ω
+
+    SubClsCommuter : Commuter SubClsDiagram
+    SubClsCommuter = fst , λ { (A , X , i) (Ω , T , t) χ →
+      Σ (T ≡ １) λ { refl → i is-a-fibre-of χ over t } }
+
+    isSubCls : SubClsDiagram → Set
+    isSubCls = universal⟨ SubClsCommuter ⟩
+```
+
+```agda
+    -- Axiom 8
+    field AxSubCls : Σ SubClsDiagram isSubCls
 ```
 
 ```agda
