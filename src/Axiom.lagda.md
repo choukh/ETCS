@@ -203,6 +203,27 @@ record Data : Set₁ where
     field AxSubCls : Σ SubClsDiagram isSubCls
 ```
 
+### Axiom 9
+
+```agda
+    -- Definition 3.3.2
+    NatDiagram : Set
+    NatDiagram = Σ CSet λ N → Elm N × N →̇ N
+
+    NatCommuter : Commuter NatDiagram
+    NatCommuter = fst , λ (N , z , σ) (X , a , r) x → ∀[ n ∈ N ] (x ⦅ z ⦆ ≡ a × x ⦅ σ ⦅ n ⦆ ⦆ ≡ r ⦅ x ⦅ n ⦆ ⦆)
+
+    isNat : NatDiagram → Set
+    isNat = universal⟨ NatCommuter ⟩
+```
+
+```agda
+    -- Axiom 9
+    field AxNat : Σ NatDiagram isNat
+```
+
+### Axiom 10
+
 ```agda
 record ETCS : Set₁ where
   field
