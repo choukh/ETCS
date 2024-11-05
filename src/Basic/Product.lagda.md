@@ -5,8 +5,7 @@ open ETCS ℳ
 
 open import Basic.Isomorphism ℳ
 open import Basic.Membership ℳ
-open import Function using (_$_) renaming (id to id⒨)
-open import Relation.Nullary using (¬_)
+open import Function using (_$_)
 ```
 
 ```agda
@@ -145,8 +144,8 @@ isoUnique-isProduct a@{a = P , p , q} b@{b = P′ , p′ , q′} Pa Pb =
 
 ```agda
 -- Lemma 2.6.10
-,̇-distrib-∘ : (a : Elm A) → (f ,̇ g) ∘ a ≡ f ⦅ a ⦆ ,̇ g ⦅ a ⦆
-,̇-distrib-∘ {f} {g} a = AxProd .snd (_ , f ⦅ a ⦆ , g ⦅ a ⦆) .snd (p , q) (pr₁-≡ , pr₂-≡) where
+,̇-distrib-∘ : {a : Elm A} → (f ,̇ g) ∘ a ≡ f ⦅ a ⦆ ,̇ g ⦅ a ⦆
+,̇-distrib-∘ {f} {g} {a} = AxProd .snd (_ , f ⦅ a ⦆ , g ⦅ a ⦆) .snd (p , q) (pr₁-≡ , pr₂-≡) where
   p =                       begin
     pr₁ ∘ ((f ,̇ g) ∘ a)     ≡˘⟨ AxAss ⟩
     (pr₁ ∘ (f ,̇ g)) ∘ a     ≡⟨ cong (_∘ a) pr₁-≡ ⟩
@@ -201,7 +200,7 @@ module _ {X X′ Y Y′ : CSet} where
   ⟨×⟩-≡ {f} {g} x y =             begin
     (f ⟨×⟩ g) ⦅ x ,̇ y ⦆           ≡⟨ ×̇-η ⟩
     pr₁ ∘ (f ⟨×⟩ g) ⦅ x ,̇ y ⦆ ,̇
-    pr₂ ∘ (f ⟨×⟩ g) ⦅ x ,̇ y ⦆     ≡⟨ cong₂ (_,̇_) eq₁ eq₂ ⟩
+    pr₂ ∘ (f ⟨×⟩ g) ⦅ x ,̇ y ⦆     ≡⟨ cong₂ _,̇_ eq₁ eq₂ ⟩
     f ⦅ x ⦆ ,̇ g ⦅ y ⦆             ∎ where
       open ≡-Reasoning
       eq₁ =                       begin
@@ -219,19 +218,27 @@ module _ {X X′ Y Y′ : CSet} where
 ```
 
 ```agda
--- Proposition 2.6.15 i
+-- Proposition 2.6.15 i / Exercise 2.6.16
 ×̇-sym : X ×̇ Y ≅ Y ×̇ X
 ×̇-sym = {!   !}
 ```
 
 ```agda
--- Proposition 2.6.15 ii / Exercise 2.6.16
+-- Proposition 2.6.15 ii
 ×̇-idʳ : X ×̇ １ ≅ X
-×̇-idʳ = {!   !}
+×̇-idʳ {X} = pr₁ , (id ,̇ !) , pr₁-≡ , AxFunExt λ p →
+  let x = pr₁ ⦅ p ⦆
+      * = pr₂ ⦅ p ⦆ in            begin
+  ((id ,̇ !) ∘ pr₁) ∘ p            ≡⟨ AxAss ⟩
+  (id ,̇ !) ⦅ x ⦆                  ≡⟨ ,̇-distrib-∘ ⟩
+  id ⦅ x ⦆ ,̇ ! ⦅ x ⦆              ≡⟨ cong₂ _,̇_ AxIdˡ (oneElement-１ .snd) ⟩
+  x ,̇ *                           ≡˘⟨ ×̇-η ⟩
+  p                               ≡˘⟨ AxIdˡ ⟩
+  id ∘ p                          ∎ where open ≡-Reasoning
 ```
 
 ```agda
--- Proposition 2.6.15 iii / Exercise 2.6.16
+-- Proposition 2.6.15 iii
 ×̇-assoc : X ×̇ (Y ×̇ Z) ≅ (X ×̇ Y) ×̇ Z
 ×̇-assoc = {!   !}
 ```
