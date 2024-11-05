@@ -87,6 +87,7 @@ record Data : Set₁ where
 ```
 
 ```agda
+    infix 15 _⦅_⦆
     _⦅_⦆ : (f : X →̇ Y) → ∀[ x ∈ X ] Elm Y
     f ⦅ x ⦆ = f ∘ x
 
@@ -143,14 +144,14 @@ record Data : Set₁ where
     _,̇_ : A →̇ X → A →̇ Y → A →̇ X ×̇ Y
     f ,̇ g = AxProd .snd (_ , f , g) .fst .fst
 
-    pr₁≡ : pr₁ ∘ ( f ,̇ g ) ≡ f
-    pr₁≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .fst
+    pr₁-≡ : pr₁ ∘ ( f ,̇ g ) ≡ f
+    pr₁-≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .fst
 
-    pr₂≡ : pr₂ ∘ ( f ,̇ g ) ≡ g
-    pr₂≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .snd
+    pr₂-≡ : pr₂ ∘ ( f ,̇ g ) ≡ g
+    pr₂-≡ {f} {g} = AxProd .snd (_ , f , g) .fst .snd .snd
 
-    ×̇-η : (h : A →̇ X ×̇ Y) → h ≡ pr₁ ∘ h ,̇ pr₂ ∘ h
-    ×̇-η h = AxProd .snd (_ , (pr₁ ∘ h) , (pr₂ ∘ h)) .snd (refl , refl) (pr₁≡ , pr₂≡)
+    ×̇-η : {h : A →̇ X ×̇ Y} → h ≡ pr₁ ∘ h ,̇ pr₂ ∘ h
+    ×̇-η {h} = AxProd .snd (_ , (pr₁ ∘ h) , (pr₂ ∘ h)) .snd (refl , refl) (pr₁-≡ , pr₂-≡)
 ```
 
 ```agda

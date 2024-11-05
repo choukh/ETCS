@@ -322,14 +322,14 @@ isoUnique-isProduct a@{a = P , p , q} b@{b = P′ , p′ , q′} Pa Pb =
 ```agda
 -- Lemma 2.6.10
 ,̇-distrib-∘ : (a : Elm A) → (f ,̇ g) ∘ a ≡ f ⦅ a ⦆ ,̇ g ⦅ a ⦆
-,̇-distrib-∘ {f} {g} a = AxProd .snd (_ , f ⦅ a ⦆ , g ⦅ a ⦆) .snd (p , q) (pr₁≡ , pr₂≡) where
+,̇-distrib-∘ {f} {g} a = AxProd .snd (_ , f ⦅ a ⦆ , g ⦅ a ⦆) .snd (p , q) (pr₁-≡ , pr₂-≡) where
   p =                       begin
     pr₁ ∘ ((f ,̇ g) ∘ a)     ≡˘⟨ AxAss ⟩
-    (pr₁ ∘ (f ,̇ g)) ∘ a     ≡⟨ cong (_∘ a) pr₁≡ ⟩
+    (pr₁ ∘ (f ,̇ g)) ∘ a     ≡⟨ cong (_∘ a) pr₁-≡ ⟩
     f ∘ a                   ∎ where open ≡-Reasoning
   q =                       begin
     pr₂ ∘ ((f ,̇ g) ∘ a)     ≡˘⟨ AxAss ⟩
-    (pr₂ ∘ (f ,̇ g)) ∘ a     ≡⟨ cong (_∘ a) pr₂≡ ⟩
+    (pr₂ ∘ (f ,̇ g)) ∘ a     ≡⟨ cong (_∘ a) pr₂-≡ ⟩
     g ∘ a                   ∎ where open ≡-Reasoning
 ```
 
@@ -343,21 +343,53 @@ isoUnique-isProduct a@{a = P , p , q} b@{b = P′ , p′ , q′} Pa Pb =
 -- Exercise 2.6.12
 ,̇-inj₁ : (f ,̇ g) ≡ (f′ ,̇ g′) → f ≡ f′
 ,̇-inj₁ {f} {g} {f′} {g′} eq = begin
-  f                         ≡˘⟨ pr₁≡ ⟩
+  f                         ≡˘⟨ pr₁-≡ ⟩
   pr₁ ∘ (f ,̇ g)             ≡⟨ cong (pr₁ ∘_) eq ⟩
-  pr₁ ∘ (f′ ,̇ g′)           ≡⟨ pr₁≡ ⟩
+  pr₁ ∘ (f′ ,̇ g′)           ≡⟨ pr₁-≡ ⟩
   f′                        ∎ where open ≡-Reasoning
 
 ,̇-inj₂ : (f ,̇ g) ≡ (f′ ,̇ g′) → g ≡ g′
 ,̇-inj₂ {f} {g} {f′} {g′} eq = begin
-  g                         ≡˘⟨ pr₂≡ ⟩
+  g                         ≡˘⟨ pr₂-≡ ⟩
   pr₂ ∘ (f ,̇ g)             ≡⟨ cong (pr₂ ∘_) eq ⟩
-  pr₂ ∘ (f′ ,̇ g′)           ≡⟨ pr₂≡ ⟩
+  pr₂ ∘ (f′ ,̇ g′)           ≡⟨ pr₂-≡ ⟩
   g′                        ∎ where open ≡-Reasoning
 ```
 
 ```agda
 -- Lemma 2.6.13
-_⟨×⟩_ : (f : X →̇ X′) (g : Y →̇ Y′) → Elm (X ×̇ Y) → Elm (X′ ×̇ Y′)
-f ⟨×⟩ g = {!   !}
+module _ {X X′ Y Y′ : CSet} where
+  _⟨×⟩_ : (f : X →̇ X′) (g : Y →̇ Y′) → X ×̇ Y →̇ X′ ×̇ Y′
+  f ⟨×⟩ g = AxProd .snd (X ×̇ Y , f ∘ pr₁ , g ∘ pr₂) .fst .fst
+
+  is⟨×⟩ : (f : X →̇ X′) (g : Y →̇ Y′) → X ×̇ Y →̇ X′ ×̇ Y′ → Set
+  is⟨×⟩ f g k = ∀[ x ∈ X ] ∀[ y ∈ Y ] k ⦅ x ,̇ y ⦆ ≡ f ⦅ x ⦆ ,̇ g ⦅ y ⦆
+
+  ⟨×⟩-unique : (f : X →̇ X′) (g : Y →̇ Y′) → unique (is⟨×⟩ f g)
+  ⟨×⟩-unique f g {a = k} {b = k′} eq eq′ = AxFunExt λ p → begin
+    k ∘ p                               ≡⟨ cong (k ∘_) ×̇-η ⟩
+    k ⦅ pr₁ ⦅ p ⦆ ,̇ pr₂ ⦅ p ⦆ ⦆         ≡⟨ eq _ _ ⟩
+    f ⦅ pr₁ ⦅ p ⦆ ⦆ ,̇ g ⦅ pr₂ ⦅ p ⦆ ⦆   ≡˘⟨ eq′ _ _ ⟩
+    k′ ⦅ pr₁ ⦅ p ⦆ ,̇ pr₂ ⦅ p ⦆ ⦆        ≡˘⟨ cong (k′ ∘_) ×̇-η ⟩
+    k′ ∘ p                              ∎ where open ≡-Reasoning
+
+  ⟨×⟩-≡ : is⟨×⟩ f g (f ⟨×⟩ g)
+  ⟨×⟩-≡ {f} {g} x y =             begin
+    (f ⟨×⟩ g) ⦅ x ,̇ y ⦆           ≡⟨ ×̇-η ⟩
+    pr₁ ∘ (f ⟨×⟩ g) ⦅ x ,̇ y ⦆ ,̇
+    pr₂ ∘ (f ⟨×⟩ g) ⦅ x ,̇ y ⦆     ≡⟨ cong₂ (_,̇_) eq₁ eq₂ ⟩
+    f ⦅ x ⦆ ,̇ g ⦅ y ⦆             ∎ where
+      open ≡-Reasoning
+      eq₁ =                       begin
+        pr₁ ∘ (f ⟨×⟩ g) ⦅ x ,̇ y ⦆ ≡˘⟨ AxAss ⟩
+        (pr₁ ∘ f ⟨×⟩ g) ∘ (x ,̇ y) ≡⟨ cong (_∘ (x ,̇ y)) (AxProd .snd _ .fst .snd .fst) ⟩
+        (f ∘ pr₁) ∘ (x ,̇ y)       ≡⟨ AxAss ⟩
+        f ⦅ pr₁ ⦅ x ,̇ y ⦆ ⦆       ≡⟨ cong (f ∘_) pr₁-≡ ⟩
+        f ⦅ x ⦆                   ∎
+      eq₂ =                       begin
+        pr₂ ∘ (f ⟨×⟩ g) ⦅ x ,̇ y ⦆ ≡˘⟨ AxAss ⟩
+        (pr₂ ∘ f ⟨×⟩ g) ∘ (x ,̇ y) ≡⟨ cong (_∘ (x ,̇ y)) (AxProd .snd _ .fst .snd .snd) ⟩
+        (g ∘ pr₂) ∘ (x ,̇ y)       ≡⟨ AxAss ⟩
+        g ⦅ pr₂ ⦅ x ,̇ y ⦆ ⦆       ≡⟨ cong (g ∘_) pr₂-≡ ⟩
+        g ⦅ y ⦆                   ∎
 ```
