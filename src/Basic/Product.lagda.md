@@ -219,8 +219,22 @@ module _ {X X′ Y Y′ : CSet} where
 
 ```agda
 -- Proposition 2.6.15 i / Exercise 2.6.16
-×̇-sym : X ×̇ Y ≅ Y ×̇ X
-×̇-sym = {!   !}
+swap : X ×̇ Y →̇ Y ×̇ X
+swap = pr₂ ,̇ pr₁
+
+swap-swap : swap {X} {Y} ∘ swap ≡ id
+swap-swap = AxFunExt λ p →            begin
+  ((pr₂ ,̇ pr₁) ∘ (pr₂ ,̇ pr₁)) ∘ p     ≡⟨ AxAss ⟩
+  (pr₂ ,̇ pr₁) ∘ ((pr₂ ,̇ pr₁) ∘ p)     ≡⟨ cong ((pr₂ ,̇ pr₁) ∘_) ,̇-distrib-∘ ⟩
+  (pr₂ ,̇ pr₁) ∘ (pr₂ ∘ p ,̇ pr₁ ∘ p)   ≡⟨ ,̇-distrib-∘ ⟩
+  pr₂ ∘ (pr₂ ∘ p ,̇ pr₁ ∘ p) ,̇
+  pr₁ ∘ (pr₂ ∘ p ,̇ pr₁ ∘ p)           ≡⟨ cong₂ _,̇_ pr₂-≡ pr₁-≡ ⟩
+  pr₁ ∘ p ,̇ pr₂ ∘ p                   ≡˘⟨ ×̇-η ⟩
+  p                                   ≡˘⟨ AxIdˡ ⟩
+  id ∘ p                              ∎ where open ≡-Reasoning
+
+×̇-comm : X ×̇ Y ≅ Y ×̇ X
+×̇-comm = swap , swap , swap-swap , swap-swap
 ```
 
 ```agda
