@@ -1,7 +1,7 @@
 ```agda
 module Axiom where
 
-open import Level public using (Level; suc; _⊔_)
+open import Level public using (Level; suc)
 open import Data.Empty public using (⊥)
 open import Data.Unit public using (⊤; tt)
 open import Data.Product public using (Σ; _×_; _,_)
@@ -107,24 +107,26 @@ record Data : Set₁ where
 ### Axiom 5
 
 ```agda
-    Commuter : (A : Set ℓ) (ℓ′ : Level) → Set (ℓ ⊔ suc ℓ′)
-    Commuter A ℓ′ = Σ (A → CSet) λ π → (a b : A) (j : π a →̇ π b) → Set ℓ′
+    Commuter : (A : Set ℓ) → Set _
+    Commuter A = Σ (A → CSet) λ π → (a b : A) (j : π a →̇ π b) → Set
 
-    universal⟨_⟩ : {A : Set ℓ} → Commuter A ℓ′ → A → Set _
-    universal⟨_⟩ {ℓ} {ℓ′} {A} C a = let (π , comm) = C in universal A (λ x → π x →̇ π a) λ x → comm x a
+    universal⟨_⟩ : {A : Set ℓ} → Commuter A → A → Set _
+    universal⟨_⟩ {ℓ} {A} C a = let (π , comm) = C in universal A (λ x → π x →̇ π a) λ x → comm x a
 ```
 
 ```agda
+    -- Definition 2.6.2
     ProductDiagram : (X Y : CSet) → Set
     ProductDiagram X Y = Σ CSet λ P → P →̇ X × P →̇ Y
 
-    ProductCommuter : Commuter (ProductDiagram X Y) _
+    ProductCommuter : Commuter (ProductDiagram X Y)
     ProductCommuter = fst , λ { (A , f , g) (P , p , q) h → p ∘ h ≡ f × q ∘ h ≡ g }
 
-    -- Definition 2.6.2
     isProduct : ProductDiagram X Y → Set
     isProduct = universal⟨ ProductCommuter ⟩
+```
 
+```agda
     -- Axiom 5
     field AxProd : Σ (ProductDiagram X Y) isProduct
 ```
@@ -139,20 +141,43 @@ record Data : Set₁ where
     f ,̇ g = AxProd .snd (_ , f , g) .fst .fst
 ```
 
+### Axiom 6
+
 ```agda
+    -- Definition 2.7.3
     FuncSetDiagram : (X Y : CSet) → Set
     FuncSetDiagram X Y = Σ CSet λ F → F ×̇ X →̇ Y
 
-    FuncSetCommuter : Commuter (FuncSetDiagram X Y) _
+    FuncSetCommuter : Commuter (FuncSetDiagram X Y)
     FuncSetCommuter {X} = fst , λ { (A , q) (F , e) q̅ →
       ∀[ a ∈ A ] ∀[ x ∈ X ] q ⦅ a ,̇ x ⦆ ≡ e ⦅ q̅ ⦅ a ⦆ ,̇ x ⦆ }
 
-    -- Definition 2.7.3
     isFuncSet : FuncSetDiagram X Y → Set
     isFuncSet = universal⟨ FuncSetCommuter ⟩
+```
 
+```agda
     -- Axiom 6
     field AxFuncSet : Σ (FuncSetDiagram X Y) isFuncSet
+```
+
+### Axiom 7
+
+```agda
+    -- Definition 3.1.4
+    FibreDiagram : (f : X →̇ Y) (y : Elm Y) → Set
+    FibreDiagram {X} f y = Σ CSet λ U → Σ (U →̇ X) λ i → ∀[ u ∈ U ] f ⦅ i ⦅ u ⦆ ⦆ ≡ y
+
+    FibreCommuter : {f : X →̇ Y} {y : Elm Y} → Commuter (FibreDiagram f y)
+    FibreCommuter = fst , λ { (A , q , fqa) (U , i , fiu) q̅ → q ≡ i ∘ q̅ }
+
+    isFibre : {f : X →̇ Y} {y : Elm Y} → FibreDiagram f y → Set
+    isFibre = universal⟨ FibreCommuter ⟩
+```
+
+```agda
+    -- Axiom 7
+    field AxFibre : {f : X →̇ Y} {y : Elm Y} → Σ (FibreDiagram f y) isFibre
 ```
 
 ```agda
