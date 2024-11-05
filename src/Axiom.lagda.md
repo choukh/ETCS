@@ -70,11 +70,11 @@ record Data : Set₁ where
 ```
 
 ```agda
-    𝟏 : CSet
-    𝟏 = AxTml .fst
+    １ : CSet
+    １ = AxTml .fst
 
     Elm : CSet → Set
-    Elm = 𝟏 →̇_
+    Elm = １ →̇_
 ```
 
 ```agda

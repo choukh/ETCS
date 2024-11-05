@@ -129,10 +129,10 @@ isoUnique-terminal {a = T} {b = T′} tT tT′ =
 ```
 
 ```agda
-!⟨_⟩ : (X : CSet) → X →̇ 𝟏
+!⟨_⟩ : (X : CSet) → X →̇ １
 !⟨ X ⟩ = AxTml .snd X .fst .fst
 
-! : X →̇ 𝟏
+! : X →̇ １
 ! {X} = !⟨ X ⟩
 ```
 
@@ -149,23 +149,23 @@ id-wellDefined x = AxIdˡ
 oneElement : CSet → Set
 oneElement X = Elm X × ∀ {x y : Elm X} → x ≡ y
 
-* : Elm 𝟏
-* = AxTml .snd 𝟏 .fst .fst
+* : Elm １
+* = AxTml .snd １ .fst .fst
 
-oneElement-𝟏 : oneElement 𝟏
-oneElement-𝟏 = * , AxTml .snd 𝟏 .snd tt tt
+oneElement-１ : oneElement １
+oneElement-１ = * , AxTml .snd １ .snd tt tt
 ```
 
 ```agda
 -- Lemma 2.4.1
 terminal→oneElement : terminal X → oneElement X
-terminal→oneElement tml = tml 𝟏 .fst .fst , tml 𝟏 .snd tt tt
+terminal→oneElement tml = tml １ .fst .fst , tml １ .snd tt tt
 
 oneElement→terminal : oneElement X → terminal X
 oneElement→terminal (x , x!) = isoInvariant-terminal
   x (! , AxFunExt q , p) tt (AxTml .snd) where
-    p : {x y : Elm 𝟏} → x ≡ y
-    p = AxTml .snd 𝟏 .snd tt tt
+    p : {x y : Elm １} → x ≡ y
+    p = AxTml .snd １ .snd tt tt
     q = λ y →         begin
       (x ∘ !) ∘ y     ≡⟨ AssIdʳ p ⟩
       x               ≡⟨ x! ⟩
@@ -175,7 +175,7 @@ oneElement→terminal (x , x!) = isoInvariant-terminal
 
 ```agda
 -- Example 2.5.2
-_ : ¬ empty 𝟏
+_ : ¬ empty １
 _ = λ p → p *
 ```
 
@@ -357,5 +357,7 @@ isoUnique-isProduct a@{a = P , p , q} b@{b = P′ , p′ , q′} Pa Pb =
 ```
 
 ```agda
---_⟨×⟩_ : (f : X →̇ X′) (g : Y →̇ Y′) → X ×̇ Y → X′ ×̇ Y′
+-- Lemma 2.6.13
+_⟨×⟩_ : (f : X →̇ X′) (g : Y →̇ Y′) → Elm (X ×̇ Y) → Elm (X′ ×̇ Y′)
+f ⟨×⟩ g = {!   !}
 ```
