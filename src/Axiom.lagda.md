@@ -173,11 +173,11 @@ record Data : Set₁ where
 
 ```agda
     -- Definition 3.1.4
-    _is-a-fibre-of_over_ : {U : CSet} (i : U →̇ X) (f : X →̇ Y) (y : Elm Y) → Set
-    i is-a-fibre-of f over y = ∀[ u ∈ _ ] f ⦅ i ⦅ u ⦆ ⦆ ≡ y
+    _isFibreOf_over_ : {U : CSet} (i : U →̇ X) (f : X →̇ Y) (y : Elm Y) → Set
+    i isFibreOf f over y = ∀[ u ∈ _ ] f ⦅ i ⦅ u ⦆ ⦆ ≡ y
 
     FibreDiagram : (f : X →̇ Y) (y : Elm Y) → Set
-    FibreDiagram {X} f y = Σ CSet λ U → Σ (U →̇ X) λ i → i is-a-fibre-of f over y
+    FibreDiagram {X} f y = Σ CSet λ U → Σ (U →̇ X) (_isFibreOf f over y)
 
     FibreCommuter : {f : X →̇ Y} {y : Elm Y} → Commuter (FibreDiagram f y)
     FibreCommuter = fst , λ { (A , q , fqa) (U , i , fiu) q̅ → q ≡ i ∘ q̅ }
@@ -200,7 +200,7 @@ record Data : Set₁ where
 
     SubClsCommuter : Commuter SubClsDiagram
     SubClsCommuter = fst , λ { (A , X , i) (Ω , T , t) χ → (eq : T ≡ １) →
-      case eq of λ { refl → i is-a-fibre-of χ over t } }
+      case eq of λ { refl → i isFibreOf χ over t } }
 
     isSubCls : SubClsDiagram → Set
     isSubCls = universal SubClsCommuter
