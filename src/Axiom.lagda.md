@@ -54,7 +54,7 @@ record Data : Set₁ where
   record Axiom : Set where
 ```
 
-### Axiom 1 - 4
+### Axiom 1
 
 ```agda
     field
@@ -63,6 +63,8 @@ record Data : Set₁ where
       AxIdˡ : id ∘ f ≡ f
       AxIdʳ : f ∘ id ≡ f
 ```
+
+### Axiom 2
 
 ```agda
     -- Definition 2.3.1
@@ -78,6 +80,8 @@ record Data : Set₁ where
     -- Axiom 2
     field AxTml : Σ CSet isTerminal
 ```
+
+### Axiom 3
 
 ```agda
     １ : CSet
@@ -104,6 +108,8 @@ record Data : Set₁ where
     -- Axiom 3
     field AxFunExt : (∀[ x ∈ X ] f ⦅ x ⦆ ≡ g ⦅ x ⦆) → f ≡ g
 ```
+
+### Axiom 4
 
 ```agda
     -- Definition 2.5.1
@@ -247,6 +253,8 @@ record Data : Set₁ where
     -- Axiom 10
     field AxChoice : surjective f → Σ (Y →̇ X) (section f)
 ```
+
+## Summary
 
 ```agda
 record ETCS : Set₁ where
