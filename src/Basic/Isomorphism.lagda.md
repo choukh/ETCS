@@ -84,10 +84,10 @@ isIso-⁻¹ {f} (f⁻¹ , p , q) = f , q , p
 ```
 
 ```agda
-isoInvariant⟨_⟩ : {A : Set ℓ} (C : Commuter A) (P : A → Set ℓ′) → Set _
+isoInvariant⟨_⟩ : {A : Set} (C : Commuter A) (P : A → Set) → Set
 isoInvariant⟨_⟩ (π , comm) P = ∀ {a b} (j : π a →̇ π b) → isIso j → comm a b j → P a → P b
 
-isoUnique⟨_⟩ : {A : Set ℓ} (C : Commuter A) (P : A → Set ℓ′) → Set _
+isoUnique⟨_⟩ : {A : Set} (C : Commuter A) (P : A → Set) → Set
 isoUnique⟨_⟩ (π , comm) P = ∀ {a b} → P a → P b → Σ (π a →̇ π b) λ j → isIso j × comm a b j × unique (comm a b)
 
 isoInvariant : (P : CSet → Set) → Set

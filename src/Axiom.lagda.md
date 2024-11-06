@@ -1,7 +1,26 @@
+---
+title: 公理化结构集合论 (1 - 公理)
+zhihu-tags: Agda, 集合论, 范畴论, 数学基础
+---
+
+# 公理化结构集合论 (1 - 公理)
+
+> 交流Q群: 893531731  
+> 本文源码: [Axiom.lagda.md](https://github.com/choukh/ETCS/blob/main/src/Axiom.lagda.md)  
+> 高亮渲染: [Axiom.html](https://choukh.github.io/ETCS/Axiom.html)  
+
+## 前言
+
+本系列文章是 Tom Leinster 在爱丁堡大学讲授的公理化结构集合论 (ETCS) 本科课程[讲义](https://www.maths.ed.ac.uk/~tl/ast/ast.pdf) (以下简称讲义) 的 Agda 形式化. 符号和定义基本上遵循讲义, 定理编号与讲义完全一致, 但由于 Agda 的特性而稍微调整了顺序.
+
+我们采用原味 Agda 加 stdlib 标准库, 这是我们的元语言, 而 ETCS 将是我们的对象语言. 由于两层语言的高度相似性, 它们的符号/命名冲突我们主要采用如下两种方式解决.
+
+1. 如果一个符号已经用于元语言 (如 `→`), 则在上面加点表示对象语言的相应概念 (如 `→̇`).
+2. 如果一个符号优先用于对象语言 (如 `id`), 则在后面加上 `⒨` 表示元语言的相应概念 (如 `id⒨`).
+
 ```agda
 module Axiom where
 
-open import Level public using (Level; suc)
 open import Data.Empty public using (⊥)
 open import Data.Unit public using (⊤; tt)
 open import Data.Product public using (Σ; _×_; _,_)
@@ -10,7 +29,16 @@ open import Function public using (case_of_) renaming (id to id⒨)
 open import Relation.Binary.PropositionalEquality public
 ```
 
-## The data
+本文是系列的第一篇, 我们引入 ETCS 的10条公理. 为了表示公理, 首先需要引入 ETCS 的原始概念, 讲义中称它们为资料 (the data), 也有称之为原语 (primitives) , 语言 (language) 或签名 (signature) 的.
+
+## 原始概念
+
+形式地, 我们的公理将在如下原始概念上展开表述.
+
+- 一些称为集合的东西, 这样的集合 `X` 记作 `X : CSet`, 其中 C 来自范畴 (category).
+- 对每个集合 `X` 和 `Y`, 一些称为「`X` 到 `Y` 的函数」的东西, 这样的函数 `f` 记作 `f : X →̇ Y`.
+- 对每个集合 `X`, `Y` 和 `Z`, 一个称为「复合」的运算, 将每个 `f : X →̇ Y` 和 `g : Y →̇ Z` 赋值为一个函数 `g ∘ f : X →̇ Z`.
+- 对每个集合 `X`, 一个称为「恒等函数」的东西, 记作 `id⟨ X ⟩ : X →̇ X`, `X` 可以从上下文推断出来时简记作 `id : X →̇ X`.
 
 ```agda
 -- 2.1 The data
@@ -28,24 +56,25 @@ record Data : Set₁ where
 ```
 
 ```agda
-  variable
-    ℓ ℓ′ ℓ′′ : Level
-    A W X Y Z X′ Y′ : CSet
-    f g h f′ g′ : X →̇ Y
-```
-
-```agda
-  unique : {A : Set ℓ} (P : A → Set ℓ′) → Set _
+  unique : {A : Set} (P : A → Set) → Set
   unique P = ∀ {a b} → P a → P b → a ≡ b
 
-  ∀∃! : {A : Set ℓ} (B : A → Set ℓ′) (P : ∀ x → B x → Set ℓ′′) → Set _
+  ∀∃! : {A : Set} (B : A → Set) (P : ∀ x → B x → Set ) → Set
   ∀∃! B P = ∀ x → (Σ (B x) (P x)) × unique (P x)
 
-  Commuter : (A : Set ℓ) → Set _
+  Commuter : (A : Set) → Set₁
   Commuter A = Σ (A → CSet) λ π → (a b : A) (j : π a →̇ π b) → Set
 
-  universal : {A : Set ℓ} → Commuter A → A → Set _
+  universal : {A : Set} → Commuter A → A → Set
   universal (π , comm) a = ∀∃! (λ x → π x →̇ π a) λ x → comm x a
+```
+
+我们约定用 `A W X Y Z X′ Y′` 表示集合, 用 `f g h f′ g′` 表示函数.
+
+```agda
+  variable
+    A W X Y Z X′ Y′ : CSet
+    f g h f′ g′ : X →̇ Y
 ```
 
 ## Axioms
