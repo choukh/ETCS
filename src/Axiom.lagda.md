@@ -6,6 +6,7 @@ open import Data.Empty public using (⊥)
 open import Data.Unit public using (⊤; tt)
 open import Data.Product public using (Σ; _×_; _,_)
   renaming (proj₁ to fst; proj₂ to snd)
+open import Function public using (case_of_)
 open import Relation.Binary.PropositionalEquality public
 ```
 
@@ -191,8 +192,8 @@ record Data : Set₁ where
     SubClsDiagram = Σ CSet λ Ω → Σ CSet λ T → T →̇ Ω
 
     SubClsCommuter : Commuter SubClsDiagram
-    SubClsCommuter = fst , λ { (A , X , i) (Ω , T , t) χ →
-      Σ (T ≡ １) λ { refl → i is-a-fibre-of χ over t } }
+    SubClsCommuter = fst , λ { (A , X , i) (Ω , T , t) χ → (eq : T ≡ １) →
+      case eq of λ { refl → i is-a-fibre-of χ over t } }
 
     isSubCls : SubClsDiagram → Set
     isSubCls = universal⟨ SubClsCommuter ⟩
@@ -200,7 +201,7 @@ record Data : Set₁ where
 
 ```agda
     -- Axiom 8
-    field AxSubCls : Σ SubClsDiagram isSubCls
+    field AxSubCls : Σ SubClsDiagram λ d@(_ , T , _) → T ≡ １ × isSubCls d
 ```
 
 ### Axiom 9
@@ -224,6 +225,27 @@ record Data : Set₁ where
 ```
 
 ### Axiom 10
+
+```agda
+    ∃[∈]-syntax : (X : CSet) (P : Elm X → Set) → Set
+    ∃[∈]-syntax X P = Σ (Elm X) P
+
+    infix 3 ∃[∈]-syntax
+    syntax ∃[∈]-syntax X (λ x → A) = ∃[ x ∈ X ] A
+```
+
+```agda
+    -- Definition 3.1.8 ii
+    surjective : (f : X →̇ Y) → Set
+    surjective {X} {Y} f = ∀[ y ∈ Y ] ∃[ x ∈ X ] f ⦅ x ⦆ ≡ y
+
+    -- Definition 3.4.1
+    section : (f : X →̇ Y) (i : Y →̇ X) → Set
+    section f i = f ∘ i ≡ id
+
+    -- Axiom 10
+    field AxChoice : surjective f → Σ (Y →̇ X) (section f)
+```
 
 ```agda
 record ETCS : Set₁ where
