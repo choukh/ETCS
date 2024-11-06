@@ -6,20 +6,8 @@ open import Data.Empty public using (⊥)
 open import Data.Unit public using (⊤; tt)
 open import Data.Product public using (Σ; _×_; _,_)
   renaming (proj₁ to fst; proj₂ to snd)
-open import Function public using (case_of_)
+open import Function public using (case_of_) renaming (id to id⒨)
 open import Relation.Binary.PropositionalEquality public
-```
-
-## Introduction
-
-```agda
-variable ℓ ℓ′ ℓ′′ : Level
-
-unique : {A : Set ℓ} (P : A → Set ℓ′) → Set _
-unique P = ∀ {a b} → P a → P b → a ≡ b
-
-universal : (A : Set ℓ) (B : A → Set ℓ′) (P : ∀ x → B x → Set ℓ′′) → Set _
-universal A B P = ∀ x → (Σ (B x) (P x)) × unique (P x)
 ```
 
 ## The data
@@ -41,8 +29,24 @@ record Data : Set₁ where
 
 ```agda
   variable
+    ℓ ℓ′ ℓ′′ : Level
     A W X Y Z X′ Y′ : CSet
     f g h f′ g′ : X →̇ Y
+```
+
+```agda
+  unique : {A : Set ℓ} (P : A → Set ℓ′) → Set _
+  unique P = ∀ {a b} → P a → P b → a ≡ b
+
+  ∀∃! : {A : Set ℓ} (B : A → Set ℓ′) (P : ∀ x → B x → Set ℓ′′) → Set _
+  ∀∃! B P = ∀ x → (Σ (B x) (P x)) × unique (P x)
+
+  Commuter : (A : Set ℓ) → Set _
+  Commuter A = Σ (A → CSet) λ π → (a b : A) (j : π a →̇ π b) → Set
+
+  universal : {A : Set ℓ} → Commuter A → A → Set _
+  universal {ℓ} {A} C a = let (π , comm) = C in
+    ∀∃! (λ x → π x →̇ π a) λ x → comm x a
 ```
 
 ## Axioms
@@ -63,11 +67,17 @@ record Data : Set₁ where
 
 ```agda
     -- Definition 2.3.1
-    terminal : CSet → Set
-    terminal T = universal CSet (_→̇ T) (λ _ _ → ⊤)
+    TerminalDiagram : Set
+    TerminalDiagram = CSet
+
+    TerminalCommuter : Commuter TerminalDiagram
+    TerminalCommuter = id⒨ , λ X T j → ⊤
+
+    isTerminal : CSet → Set
+    isTerminal = universal TerminalCommuter
 
     -- Axiom 2
-    field AxTml : Σ CSet terminal
+    field AxTml : Σ CSet isTerminal
 ```
 
 ```agda
@@ -108,14 +118,6 @@ record Data : Set₁ where
 ### Axiom 5
 
 ```agda
-    Commuter : (A : Set ℓ) → Set _
-    Commuter A = Σ (A → CSet) λ π → (a b : A) (j : π a →̇ π b) → Set
-
-    universal⟨_⟩ : {A : Set ℓ} → Commuter A → A → Set _
-    universal⟨_⟩ {ℓ} {A} C a = let (π , comm) = C in universal A (λ x → π x →̇ π a) λ x → comm x a
-```
-
-```agda
     -- Definition 2.6.2
     ProductDiagram : (X Y : CSet) → Set
     ProductDiagram X Y = Σ CSet λ P → P →̇ X × P →̇ Y
@@ -124,7 +126,7 @@ record Data : Set₁ where
     ProductCommuter = fst , λ { (A , f , g) (P , p , q) h → p ∘ h ≡ f × q ∘ h ≡ g }
 
     isProduct : ProductDiagram X Y → Set
-    isProduct = universal⟨ ProductCommuter ⟩
+    isProduct = universal ProductCommuter
 ```
 
 ```agda
@@ -154,7 +156,7 @@ record Data : Set₁ where
       ∀[ a ∈ A ] ∀[ x ∈ X ] q ⦅ a ,̇ x ⦆ ≡ e ⦅ q̅ ⦅ a ⦆ ,̇ x ⦆ }
 
     isFuncSet : FuncSetDiagram X Y → Set
-    isFuncSet = universal⟨ FuncSetCommuter ⟩
+    isFuncSet = universal FuncSetCommuter
 ```
 
 ```agda
@@ -176,7 +178,7 @@ record Data : Set₁ where
     FibreCommuter = fst , λ { (A , q , fqa) (U , i , fiu) q̅ → q ≡ i ∘ q̅ }
 
     isFibre : {f : X →̇ Y} {y : Elm Y} → FibreDiagram f y → Set
-    isFibre = universal⟨ FibreCommuter ⟩
+    isFibre = universal FibreCommuter
 ```
 
 ```agda
@@ -196,7 +198,7 @@ record Data : Set₁ where
       case eq of λ { refl → i is-a-fibre-of χ over t } }
 
     isSubCls : SubClsDiagram → Set
-    isSubCls = universal⟨ SubClsCommuter ⟩
+    isSubCls = universal SubClsCommuter
 ```
 
 ```agda
@@ -216,7 +218,7 @@ record Data : Set₁ where
       ∀[ n ∈ N ] (x ⦅ z ⦆ ≡ a × x ⦅ σ ⦅ n ⦆ ⦆ ≡ r ⦅ x ⦅ n ⦆ ⦆)
 
     isNat : NatDiagram → Set
-    isNat = universal⟨ NatCommuter ⟩
+    isNat = universal NatCommuter
 ```
 
 ```agda

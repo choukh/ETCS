@@ -10,8 +10,8 @@ open import Relation.Nullary using (¬_)
 
 ```agda
 -- Lemma 2.3.3
-isoInvariant-terminal : isoInvariant terminal
-isoInvariant-terminal {a = T} {b = T′} j (j⁻¹ , jj⁻¹ , _) tt tml X =
+isoInvariant-isTerminal : isoInvariant isTerminal
+isoInvariant-isTerminal {a = T} {b = T′} j (j⁻¹ , jj⁻¹ , _) tt tml X =
   let (f , tt) , f! = tml X in
   (j ∘ f , tt) , λ {f′ g′} _ _ → begin
     f′                      ≡˘⟨ AssIdˡ jj⁻¹ ⟩
@@ -22,8 +22,8 @@ isoInvariant-terminal {a = T} {b = T′} j (j⁻¹ , jj⁻¹ , _) tt tml X =
 
 ```agda
 -- Lemma 2.3.4
-isoUnique-terminal : isoUnique terminal
-isoUnique-terminal {a = T} {b = T′} tT tT′ =
+isoUnique-isTerminal : isoUnique isTerminal
+isoUnique-isTerminal {a = T} {b = T′} tT tT′ =
   let f : T →̇ T′
       f = tT′ T .fst .fst
       f′ : T′ →̇ T
@@ -67,11 +67,11 @@ oneElement-１ = * , AxTml .snd １ .snd tt tt
 
 ```agda
 -- Lemma 2.4.1
-terminal→oneElement : terminal X → oneElement X
-terminal→oneElement tml = tml １ .fst .fst , tml １ .snd tt tt
+isTerminal→oneElement : isTerminal X → oneElement X
+isTerminal→oneElement tml = tml １ .fst .fst , tml １ .snd tt tt
 
-oneElement→terminal : oneElement X → terminal X
-oneElement→terminal (x , x!) = isoInvariant-terminal
+oneElement→isTerminal : oneElement X → isTerminal X
+oneElement→isTerminal (x , x!) = isoInvariant-isTerminal
   x (! , AxFunExt q , p) tt (AxTml .snd) where
     p : {x y : Elm １} → x ≡ y
     p = AxTml .snd １ .snd tt tt
