@@ -45,8 +45,7 @@ record Data : Set₁ where
   Commuter A = Σ (A → CSet) λ π → (a b : A) (j : π a →̇ π b) → Set
 
   universal : {A : Set ℓ} → Commuter A → A → Set _
-  universal {ℓ} {A} C a = let (π , comm) = C in
-    ∀∃! (λ x → π x →̇ π a) λ x → comm x a
+  universal (π , comm) a = ∀∃! (λ x → π x →̇ π a) λ x → comm x a
 ```
 
 ## Axioms
