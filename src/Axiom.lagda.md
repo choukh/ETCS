@@ -76,7 +76,7 @@ record Data : Set₁ where
   Diagram = Σ CSet
 ```
 
-**定义 -1.3** 给定箭头模式 `A`, 我们把关于两个 `A`-图式以及它们的底集间映射 `j` 的性质称为 `A`-交换模式, 记作 `Commuter A`. 对任意两个 `A`-图式以及它们的底集间映射 `j`, 如果它们满足一个 `A`-交换模式 `C : Commuter A`, 我们就称它们 `C`-交换.
+**定义 -1.3** 给定箭头模式 `A`, 我们把关于两个 `A`-图式以及它们的底集间映射 `j` 的性质称为 `A`-交换模式, 记作 `Commuter A`. 对任意两个 `A`-图式 `a` `b` 以及它们的底集间映射 `j`, 如果它们满足一个 `A`-交换模式 `C : Commuter A`, 我们就称它们 `C`-交换, 记作 `C a b j`.
 
 ```agda
   Commuter : (A : Arrow) → Set₁
@@ -183,14 +183,37 @@ record Data : Set₁ where
     field AxFunExt : (∀[ x ∈ X ] f ⦅ x ⦆ ≡ g ⦅ x ⦆) → f ≡ g
 ```
 
+**定义 2.5.1** 我们称一个集合 `X` 为空集, 当且仅当对任意 `x ∈ X` 都有 `⊥`.
+
 ```agda
     -- Definition 2.5.1
     empty : CSet → Set
     empty X = ∀[ x ∈ X ] ⊥
+```
 
+**公理 4** 存在一个空集.
+
+```agda
     -- Axiom 4
     field AxEmpty : Σ CSet empty
 ```
+
+**定义 2.6.2** 给定集合 `X Y : CSet`, 我们按如下三步定义它们的积的泛性质.
+
+第一步, 定义积的箭头, 它包含如下资料:
+
+- 一个函数 `p : P →̇ X`
+- 一个函数 `q : P →̇ Y`
+
+于是一个积图式具有如下形式
+
+![Image](https://pic4.zhimg.com/80/v2-4102e695eae0d63c5a11e9aef1af1ee5.png)
+
+我们将这样的积图式简记作 `(P , p , q)`.
+
+第二步, 定义积图式的交换: 我们说两个积图式 `(P , p , q)` 和 `(A , f , g)` 以及底集间映射 `h : P →̇ A` 交换, 当且仅当 `p ∘ h ≡ f` 且 `q ∘ h ≡ g`.
+
+第三步, 定义积的泛性质: 我们说一个积图式 `(P , p , q)` 满足积的泛性质, 当且仅当对任意积图式 `(A , f , g)`, 存在唯一的底集间映射 `h : A →̇ P` 使得它们交换.
 
 ```agda
     -- Definition 2.6.2
@@ -204,16 +227,24 @@ record Data : Set₁ where
     isProduct = universal ProductCommuter
 ```
 
+**公理 5** 对任意集合 `X Y : CSet`, 存在积图式满足积的泛性质.
+
 ```agda
     -- Axiom 5
     field AxProd : Σ (Diagram (Product X Y)) isProduct
 ```
 
+给定集合 `X Y : CSet`, 我们把公理5所承诺的积图式的底集称为 `X` 和 `Y` 的积, 记作 `X ×̇ Y`.
+
 ```agda
     infixr 15 _×̇_
     _×̇_ : CSet → CSet → CSet
     X ×̇ Y = AxProd {X} {Y} .fst .fst
+```
 
+给定集合 `X Y A : CSet` 和函数 `f : A →̇ X` `g : A →̇ Y`, 公理5承诺了积图示 `(A , f , g)` 到积图示 `(X ×̇ Y , p , q)` 的底集间唯一映射, 我们记作 `f ,̇ g : A →̇ X ×̇ Y`. 特别地, 当 `A ≡ １` 时, 我们记作 `f` 是 `X` 的元素, `g` 是 `Y` 的元素, `f ,̇ g` 是 `X ×̇ Y` 的元素.
+
+```agda
     infixr 5 _,̇_
     _,̇_ : A →̇ X → A →̇ Y → A →̇ X ×̇ Y
     f ,̇ g = AxProd .snd (_ , f , g) .fst .fst
