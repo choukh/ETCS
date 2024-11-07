@@ -11,7 +11,7 @@ zhihu-tags: Agda, 集合论, 范畴论, 数学基础
 
 ## 前言
 
-本系列文章是 Tom Leinster 在爱丁堡大学讲授的公理化结构集合论 (ETCS) 本科课程[讲义](https://www.maths.ed.ac.uk/~tl/ast/ast.pdf) (以下简称讲义) 的 Agda 形式化. 我们的符号选取和定义表述基本上遵循讲义, 而定理编号与讲义完全一致, 但由于 Agda 的特性而稍微调整了顺序.
+本系列文章是对 Tom Leinster 在爱丁堡大学教授的本科课程「公理化结构集合论（ETCS）」讲义（以下简称「讲义」）的 Agda 形式化。 我们的符号选取和定义表述基本上遵循讲义, 而定理编号与讲义完全一致, 但由于 Agda 的特性而稍微调整了顺序.
 
 我们采用原味 Agda 加 stdlib 标准库, 这是我们的元语言, 而 ETCS 将是我们的对象语言. 由于两层语言的高度相似性, 它们的符号/命名冲突我们主要采用如下两种方式解决.
 
@@ -57,25 +57,40 @@ record Data : Set₁ where
 
 我们会形式化讲义中没有编号的概念, 这些概念我们编号为 -1.
 
-**定义 -1.1** 对任意性质 `P`, 我们说 `P` 的见证是唯一的, 记作 `unique P`, 当且仅当对任意 `a` 和 `b`, 有 `P a` 和 `P b` 蕴含 `a ≡ b`.
+**定义 -1.1** 我们把关于集合的性质称为箭头模式 `Arrow`. 任给一个这样的性质 `A : Arrow`, 如果某集合 `X` 满足 `A`, 我们就把见证 `a : A X` 称为集合 `X` 的一套 `A`-箭头.
+
+```agda
+  Arrow : Set₁
+  Arrow = CSet → Set
+```
+
+**定义 -1.2** 给定箭头模式 `A`, 由以下资料组成的东西称为 `A`-图式 (diagram), 记作 `Diagram A`.
+
+- 一个 `X : CSet`
+- `X` 的一套 `A`-箭头
+
+其中 `X` 叫做图式的底集 (underlying set).
+
+```agda
+  Diagram : Arrow → Set
+  Diagram = Σ CSet
+```
+
+**定义 -1.3** 给定箭头模式 `A`, 我们把关于两个 `A`-图式以及它们的底集间映射 `j` 的性质称为 `A`-交换模式, 记作 `Commuter A`. 对任意两个 `A`-图式以及它们的底集间映射 `j`, 如果它们满足一个 `A`-交换模式, 我们就称它们 `A`-交换.
+
+```agda
+  Commuter : (A : Arrow) → Set₁
+  Commuter A = ((X , _) (Y , _) : Diagram A) (j : X →̇ Y) → Set
+```
+
+**定义 -1.4** 对任意性质 `P`, 我们说 `P` 的见证是唯一的, 记作 `unique P`, 当且仅当对任意 `a` 和 `b`, 有 `P a` 和 `P b` 蕴含 `a ≡ b`.
 
 ```agda
   unique : {A : Set} (P : A → Set) → Set
   unique P = ∀ {a b} → P a → P b → a ≡ b
 ```
 
-```agda
-  Arrow : Set₁
-  Arrow = CSet → Set
-
-  Diagram : (A : Arrow) → Set
-  Diagram = Σ CSet
-```
-
-```agda
-  Commuter : (A : Arrow) → Set₁
-  Commuter A = ((X , _) (Y , _) : Diagram A) (j : X →̇ Y) → Set
-```
+**定义 -1.5** 给定一个 `A`-交换模式和一个 `A`-图式 `b`, 我们称 `b` 满足 `A`-泛性质, 当且仅当对任意 `A`-图式 `a`, 存在唯一的底集间映射 `j` 使得 `a` `b` `j` 满足 `A`-交换.
 
 ```agda
   universal : {A : Arrow} → Commuter A → Diagram A → Set
@@ -83,7 +98,7 @@ record Data : Set₁ where
     (Σ (X →̇ Y) λ j → C a b j) × unique (C a b)
 ```
 
-我们约定用 `A W X Y Z X′ Y′` 表示集合, 用 `f g h f′ g′` 表示函数.
+我们约定用 `A` `W` `X` `Y` `Z` `X′` `Y′` 表示集合, 用 `f` `g` `h` `f′` `g′` 表示函数.
 
 ```agda
   variable
