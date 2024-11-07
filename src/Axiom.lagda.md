@@ -57,7 +57,7 @@ record Data : Set₁ where
 
 我们会形式化讲义中没有编号的概念, 这些概念我们编号为 -1.
 
-**定义 -1.1** 我们把关于集合的性质称为箭头模式 `Arrow`. 任给一个这样的性质 `A : Arrow`, 如果某集合 `X` 满足 `A`, 我们就把见证 `a : A X` 称为集合 `X` 的一套 `A`-箭头.
+**定义 -1.1** 我们把关于集合的性质称为箭头模式 `Arrow`. 给定这样的性质 `A : Arrow`, 如果某集合 `X` 满足 `A`, 我们就把 `a : A X` 称为集合 `X` 的一套 `A`-箭头.
 
 ```agda
   Arrow : Set₁
@@ -76,7 +76,7 @@ record Data : Set₁ where
   Diagram = Σ CSet
 ```
 
-**定义 -1.3** 给定箭头模式 `A`, 我们把关于两个 `A`-图式以及它们的底集间映射 `j` 的性质称为 `A`-交换模式, 记作 `Commuter A`. 对任意两个 `A`-图式以及它们的底集间映射 `j`, 如果它们满足一个 `A`-交换模式 `C`, 我们就称它们 `C`-交换.
+**定义 -1.3** 给定箭头模式 `A`, 我们把关于两个 `A`-图式以及它们的底集间映射 `j` 的性质称为 `A`-交换模式, 记作 `Commuter A`. 对任意两个 `A`-图式以及它们的底集间映射 `j`, 如果它们满足一个 `A`-交换模式 `C : Commuter A`, 我们就称它们 `C`-交换.
 
 ```agda
   Commuter : (A : Arrow) → Set₁
@@ -102,13 +102,19 @@ record Data : Set₁ where
     f g h f′ g′ : X →̇ Y
 ```
 
-## Axioms
+## 公理
+
+我们现在可以引入 ETCS 的10条公理.
 
 ```agda
   record Axiom : Set where
 ```
 
-### Axiom 1
+**公理 1** 以下三个命题成立.
+
+1. 复合运算满足结合律.
+2. 恒等函数是复合运算的左单位元.
+3. 恒等函数是复合运算的右单位元.
 
 ```agda
     field
@@ -118,7 +124,7 @@ record Data : Set₁ where
       AxIdʳ : f ∘ id ≡ f
 ```
 
-### Axiom 2
+**定义 2.3.1** 我们说一个集合 `T` 是终集合, 当且仅当对任意集合 `X`, 存在唯一的 `j : X →̇ T`. 注意终集合的图式没有箭头, 只有一个集合, 且终集合的交换模式是恒真.
 
 ```agda
     -- Definition 2.3.1
@@ -132,23 +138,27 @@ record Data : Set₁ where
     isTerminal = universal TerminalCommuter
 ```
 
+**公理 2** 存在一个终集合.
+
 ```agda
     -- Axiom 2
     field AxTml : Σ (Diagram Terminal) isTerminal
 ```
 
-### Axiom 3
+我们把公理2承诺的集合记作 `１`, 因为它里面只有一个元素, 这会在下一章证明.
 
 ```agda
     １ : CSet
     １ = AxTml .fst .fst
-
-    Elm : CSet → Set
-    Elm = １ →̇_
 ```
+
+**定义 2.3.6** 给定集合 `X`, 我们把 `１` 到 `X` 的函数称为 `X` 的元素, 其类型记作 `Elm X`. 我们将 `x : Elm X` 简记为 `x ∈ X`.
 
 ```agda
     -- Definition 2.3.6
+    Elm : CSet → Set
+    Elm = １ →̇_
+
     ∀[∈]-syntax : (X : CSet) (P : Elm X → Set) → Set
     ∀[∈]-syntax X P = (x : Elm X) → P x
 
@@ -156,16 +166,22 @@ record Data : Set₁ where
     syntax ∀[∈]-syntax X (λ x → A) = ∀[ x ∈ X ] A
 ```
 
+注意 `x ∈ X` 是一个声明而不是可以讨论真假的命题, 这一点与质料集合论 (ZFC等) 不同.
+
+给定函数 `f : X →̇ Y` 和一个元素 `x ∈ X`, 我们把复合函数 `f ∘ x` 记作 `f ⦅ x ⦆`.
+
 ```agda
     infix 15 _⦅_⦆
     _⦅_⦆ : (f : X →̇ Y) → ∀[ x ∈ X ] Elm Y
     f ⦅ x ⦆ = f ∘ x
+```
 
+**公理 3** 对任意集合 `X Y : CSet` 以及函数 `f g : X →̇ Y`, 如果对任意 `x ∈ X` 都有 `f ⦅ x ⦆ ≡ g ⦅ x ⦆`, 那么 `f ≡ g`.
+
+```agda
     -- Axiom 3
     field AxFunExt : (∀[ x ∈ X ] f ⦅ x ⦆ ≡ g ⦅ x ⦆) → f ≡ g
 ```
-
-### Axiom 4
 
 ```agda
     -- Definition 2.5.1
@@ -175,8 +191,6 @@ record Data : Set₁ where
     -- Axiom 4
     field AxEmpty : Σ CSet empty
 ```
-
-### Axiom 5
 
 ```agda
     -- Definition 2.6.2
@@ -205,8 +219,6 @@ record Data : Set₁ where
     f ,̇ g = AxProd .snd (_ , f , g) .fst .fst
 ```
 
-### Axiom 6
-
 ```agda
     -- Definition 2.7.3
     FuncSet : (X Y : CSet) → Arrow
@@ -224,8 +236,6 @@ record Data : Set₁ where
     -- Axiom 6
     field AxFuncSet : Σ (Diagram (FuncSet X Y)) isFuncSet
 ```
-
-### Axiom 7
 
 ```agda
     -- Definition 3.1.4
@@ -247,8 +257,6 @@ record Data : Set₁ where
     field AxFibre : {f : X →̇ Y} {y : Elm Y} → Σ (Diagram (Fibre f y)) isFibre
 ```
 
-### Axiom 8
-
 ```agda
     -- Definition 3.2.1
     SubCls : Arrow
@@ -267,8 +275,6 @@ record Data : Set₁ where
     field AxSubCls : Σ (Diagram SubCls) λ d@(_ , T , _) → T ≡ １ × isSubCls d
 ```
 
-### Axiom 9
-
 ```agda
     -- Definition 3.3.2
     Nat : Arrow
@@ -286,8 +292,6 @@ record Data : Set₁ where
     -- Axiom 9
     field AxNat : Σ (Diagram Nat) isNat
 ```
-
-### Axiom 10
 
 ```agda
     ∃[∈]-syntax : (X : CSet) (P : Elm X → Set) → Set
@@ -310,7 +314,7 @@ record Data : Set₁ where
     field AxChoice : surjective f → Σ (Y →̇ X) (section f)
 ```
 
-## Summary
+## 总结
 
 ```agda
 record ETCS : Set₁ where
