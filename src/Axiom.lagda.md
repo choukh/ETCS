@@ -275,7 +275,7 @@ record Data : Set₁ where
 
 第三步, 定义幂的泛性质: 我们说一个幂图式 `(F , e)` 满足幂的泛性质, 当且仅当对任意幂图式 `(A , q)`, 存在唯一的底集间映射 `q̅ : A →̇ F` 使得它们交换.
 
-![幂的泛性质](https://pic4.zhimg.com/80/v2-c1ac35162eb7a8183ccbb9f9d7321196.png)
+![幂的泛性质](https://pic4.zhimg.com/80/v2-2874a6ccdc996e99f8027e4b11e2383d.png)
 
 ```agda
     -- Definition 2.7.3
