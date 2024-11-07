@@ -66,7 +66,7 @@ record Data : Set₁ where
 
 **定义 -1.2** 给定箭头模式 `A`, 由以下资料组成的东西称为 `A`-图式 (diagram), 记作 `Diagram A`.
 
-- 一个 `X : CSet`
+- 一个集合 `X`
 - `X` 的一套 `A`-箭头
 
 其中 `X` 叫做图式的底集 (underlying set).
@@ -83,16 +83,12 @@ record Data : Set₁ where
   Commuter A = ((X , _) (Y , _) : Diagram A) (j : X →̇ Y) → Set
 ```
 
-**定义 -1.4** 对任意性质 `P`, 我们说 `P` 的见证是唯一的, 记作 `unique P`, 当且仅当对任意 `a` 和 `b`, 有 `P a` 和 `P b` 蕴含 `a ≡ b`.
+**定义 -1.4** 给定一个 `A`-交换模式和一个 `A`-图式 `b`, 我们称 `b` 满足 `A`-泛性质, 当且仅当对任意 `A`-图式 `a`, 存在唯一的底集间映射 `j` 使得 `a` `b` `j` 满足 `A`-交换.
 
 ```agda
   unique : {A : Set} (P : A → Set) → Set
   unique P = ∀ {a b} → P a → P b → a ≡ b
-```
 
-**定义 -1.5** 给定一个 `A`-交换模式和一个 `A`-图式 `b`, 我们称 `b` 满足 `A`-泛性质, 当且仅当对任意 `A`-图式 `a`, 存在唯一的底集间映射 `j` 使得 `a` `b` `j` 满足 `A`-交换.
-
-```agda
   universal : {A : Arrow} → Commuter A → Diagram A → Set
   universal {A} C b@(Y , _) = (a@(X , _) : Diagram A) →
     (Σ (X →̇ Y) λ j → C a b j) × unique (C a b)
