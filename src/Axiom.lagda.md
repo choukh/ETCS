@@ -214,7 +214,7 @@ record Data : Set₁ where
 
 我们将这样的积图式简记作 `(P , p , q)`.
 
-第二步, 定义积图式的交换: 我们说两个积图式 `(P , p , q)` 和 `(A , f , g)` 以及底集间映射 `h : P →̇ A` 交换, 当且仅当 `p ∘ h ≡ f` 且 `q ∘ h ≡ g`.
+第二步, 定义积图式的交换: 我们说两个积图式 `(A , f , g)` 和 `(P , p , q)` 以及底集间映射 `h : A →̇ P` 交换, 当且仅当 `p ∘ h ≡ f` 且 `q ∘ h ≡ g`.
 
 第三步, 定义积的泛性质: 我们说一个积图式 `(P , p , q)` 满足积的泛性质, 当且仅当对任意积图式 `(A , f , g)`, 存在唯一的底集间映射 `h : A →̇ P` 使得它们交换.
 
@@ -361,12 +361,26 @@ record Data : Set₁ where
     isSubCls = universal SubClsCommuter
 ```
 
-**公理 8** 存在一个子集分类器图式满足子集分类器的泛性质.
+**公理 8** 存在一个子集分类器图式 `(Ω , １ , t)` 满足子集分类器的泛性质.
 
 ```agda
     -- Axiom 8
     field AxSubCls : Σ (Diagram SubCls) λ d@(_ , T , _) → T ≡ １ × isSubCls d
 ```
+
+**定义 3.3.2** 我们按以下三步定义自然数集的泛性质.
+
+第一步, 定义自然数图式, 它包含如下资料:
+
+- 一个集合 `N`
+- 一个元素 `z ∈ N`
+- 一个函数 `σ : N →̇ N`
+
+第二步, 定义自然数图式的交换: 我们说两个自然数图式 `(N , z , σ)` 和 `(X , a , r)` 以及底集间映射 `x : N →̇ X` 交换, 当且仅当对任意 `n ∈ N` 都有 `x ⦅ z ⦆ ≡ a` 且 `x ⦅ σ ⦅ n ⦆ ⦆ ≡ r ⦅ x ⦅ n ⦆ ⦆`.
+
+第三步, 定义自然数的泛性质: 我们说一个自然数图式 `(N , z , σ)` 满足自然数的泛性质, 当且仅当对任意自然数图式 `(X , a , r)`, 存在唯一的底集间映射 `x : N →̇ X` 使得它们交换.
+
+![Image](https://pic4.zhimg.com/80/v2-e45551a00cb7f8e004d3a63e3f29ece0.png)
 
 ```agda
     -- Definition 3.3.2
@@ -380,6 +394,8 @@ record Data : Set₁ where
     isNat : Diagram Nat → Set
     isNat = universal NatCommuter
 ```
+
+**公理 9** 存在一个自然数图式满足自然数的泛性质.
 
 ```agda
     -- Axiom 9
