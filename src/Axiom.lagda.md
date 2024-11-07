@@ -244,6 +244,8 @@ record Data : Set₁ where
 
 给定集合 `X Y A : CSet` 和函数 `f : A →̇ X` `g : A →̇ Y`, 公理5承诺了积图示 `(A , f , g)` 到积图示 `(X ×̇ Y , p , q)` 的底集间唯一映射, 我们记作 `f ,̇ g : A →̇ X ×̇ Y`. 特别地, 当 `A ≡ １` 时, `f` 是 `X` 的元素, `g` 是 `Y` 的元素, `f ,̇ g` 是 `X ×̇ Y` 的元素.
 
+![Image](https://pic4.zhimg.com/80/v2-2d6538eb4972f971f7a6362c7763612f.png)
+
 ```agda
     infixr 5 _,̇_
     _,̇_ : A →̇ X → A →̇ Y → A →̇ X ×̇ Y
