@@ -1,6 +1,7 @@
 ---
 title: 公理化结构集合论 (1 公理)
 zhihu-tags: Agda, 集合论, 范畴论, 数学基础
+zhihu-url: https://zhuanlan.zhihu.com/p/5630540119
 ---
 
 # 公理化结构集合论 (1 公理)
@@ -110,7 +111,7 @@ record Data : Set₁ where
   record Axiom : Set where
 ```
 
-**公理 1** 以下三个命题成立.
+**公理 1 (范畴)** 以下三个命题成立.
 
 1. 复合运算满足结合律.
 2. 恒等函数是复合运算的左单位元.
@@ -138,7 +139,7 @@ record Data : Set₁ where
     isTerminal = universal TerminalCommuter
 ```
 
-**公理 2** 存在一个终集合.
+**公理 2 (终集)** 存在一个终集合.
 
 ```agda
     -- Axiom 2
@@ -166,9 +167,15 @@ record Data : Set₁ where
 
     infix 3 ∀[∈]-syntax
     syntax ∀[∈]-syntax X (λ x → A) = ∀[ x ∈ X ] A
+
+    ∃[∈]-syntax : (X : CSet) (P : Elm X → Set) → Set
+    ∃[∈]-syntax X P = Σ (Elm X) P
+
+    infix 3 ∃[∈]-syntax
+    syntax ∃[∈]-syntax X (λ x → A) = ∃[ x ∈ X ] A
 ```
 
-**注意** `x ∈ X` 是一个声明而不是可以讨论真假的命题, 这一点与质料集合论 (ZFC等) 不同. 就像我们说「给定集合 `X`, 怎么怎么样」一样, 这里不存在 「`X` 是不是集合」的问题, 我们也只能说「给定元素 `x ∈ X`, 怎么怎么样」, 而不存在 「`x` 是不是 `X` 的元素」的问题.
+**注意** `x ∈ X` 是一个声明而不是可以讨论真假的命题, 这一点与质料集合论 (ZFC等) 不同. 就像我们说「任意/存在集合 `X`, 怎么怎么样」一样, 这里不存在 「`X` 是不是集合」的问题, 我们也只能说「任意/存在元素 `x ∈ X`, 怎么怎么样」, 而不存在 「`x` 是不是 `X` 的元素」的问题.
 
 给定函数 `f : X →̇ Y` 和一个元素 `x ∈ X`, 我们把复合函数 `f ∘ x` 记作 `f ⦅ x ⦆`.
 
@@ -178,7 +185,7 @@ record Data : Set₁ where
     f ⦅ x ⦆ = f ∘ x
 ```
 
-**公理 3** 对任意集合 `X Y : CSet` 以及函数 `f g : X →̇ Y`, 如果对任意 `x ∈ X` 都有 `f ⦅ x ⦆ ≡ g ⦅ x ⦆`, 那么 `f ≡ g`.
+**公理 3 (函数外延)** 对任意集合 `X Y : CSet` 以及函数 `f g : X →̇ Y`, 如果对任意 `x ∈ X` 都有 `f ⦅ x ⦆ ≡ g ⦅ x ⦆`, 那么 `f ≡ g`.
 
 ```agda
     -- Axiom 3
@@ -193,7 +200,7 @@ record Data : Set₁ where
     empty X = ∀[ x ∈ X ] ⊥
 ```
 
-**公理 4** 存在一个空集.
+**公理 4 (空集)** 存在一个空集.
 
 ```agda
     -- Axiom 4
@@ -230,7 +237,7 @@ record Data : Set₁ where
     isProduct = universal ProductCommuter
 ```
 
-**公理 5** 对任意集合 `X Y : CSet`, 存在积图式满足积的泛性质.
+**公理 5 (积)** 对任意集合 `X Y : CSet`, 存在积图式满足积的泛性质.
 
 ```agda
     -- Axiom 5
@@ -283,7 +290,7 @@ record Data : Set₁ where
     isFuncSet = universal FuncSetCommuter
 ```
 
-**公理 6** 对任意集合 `X Y : CSet`, 存在幂图式满足幂的泛性质.
+**公理 6 (幂)** 对任意集合 `X Y : CSet`, 存在幂图式满足幂的泛性质.
 
 ```agda
     -- Axiom 6
@@ -325,7 +332,7 @@ record Data : Set₁ where
     isFibre = universal FibreCommuter
 ```
 
-**公理 7** 对任意 `f : X →̇ Y` 和元素 `y ∈ Y`, 存在纤维图式满足纤维的泛性质.
+**公理 7 (纤维)** 对任意 `f : X →̇ Y` 和元素 `y ∈ Y`, 存在纤维图式满足纤维的泛性质.
 
 ```agda
     -- Axiom 7
@@ -361,7 +368,7 @@ record Data : Set₁ where
     isSubCls = universal SubClsCommuter
 ```
 
-**公理 8** 存在一个子集分类器图式 `(Ω , １ , t)` 满足子集分类器的泛性质.
+**公理 8 (子集)** 存在一个子集分类器图式 `(Ω , １ , t)` 满足子集分类器的泛性质.
 
 ```agda
     -- Axiom 8
@@ -395,35 +402,59 @@ record Data : Set₁ where
     isNat = universal NatCommuter
 ```
 
-**公理 9** 存在一个自然数图式满足自然数的泛性质.
+**公理 9 (自然数)** 存在一个自然数图式满足自然数的泛性质.
 
 ```agda
     -- Axiom 9
     field AxNat : Σ (Diagram Nat) isNat
 ```
 
-```agda
-    ∃[∈]-syntax : (X : CSet) (P : Elm X → Set) → Set
-    ∃[∈]-syntax X P = Σ (Elm X) P
-
-    infix 3 ∃[∈]-syntax
-    syntax ∃[∈]-syntax X (λ x → A) = ∃[ x ∈ X ] A
-```
+**定义 3.1.8 ii** 给定函数 `f : X →̇ Y`, 我们称 `f` 是满射, 当且仅当对任意 `y ∈ Y` 都存在 `x ∈ X` 使得 `f ⦅ x ⦆ ≡ y`.
 
 ```agda
     -- Definition 3.1.8 ii
     surjective : (f : X →̇ Y) → Set
     surjective {X} {Y} f = ∀[ y ∈ Y ] ∃[ x ∈ X ] f ⦅ x ⦆ ≡ y
+```
 
+**定义 3.4.1** 给定函数 `f : X →̇ Y` 和 `i : Y →̇ X`, 我们称 `i` 是 `f` 的截面, 当且仅当 `f ∘ i ≡ id`.
+
+```agda
     -- Definition 3.4.1
     section : (f : X →̇ Y) (i : Y →̇ X) → Set
     section f i = f ∘ i ≡ id
+```
 
+**公理 10 (选择)** 如果 `f : X →̇ Y` 是满射, 那么存在 `f` 的一个截面 `i : Y →̇ X`.
+
+```agda
     -- Axiom 10
     field AxChoice : surjective f → Σ (Y →̇ X) (section f)
 ```
 
 ## 总结
+
+以下是对公理化的总结. 我们的公理适用于以下资料：
+
+- 一些称为集合的东西;
+- 对于每个集合 `X` 和集合 `Y`, 一些称为从 `X` 到 `Y` 的函数, 我们用 `f : X →̇ Y` 表示从 `X` 到 `Y` 的函数 `f`;
+- 对于每个集合 `X`, 集合 `Y` 和集合 `X`, 一个称为复合的运算, 将每对函数 `f : X →̇ Y` 和 `g : Y →̇ Z` 赋予一个函数 `f ∘ g : X →̇ Z`;
+- 对于每个集合 `X`， 一个函数 `id : X →̇ X`, 称为 `X` 的恒等函数.
+
+公理：
+
+1. 函数的复合满足结合律, 并且恒等函数起到恒等作用.
+2. 存在一个终集.
+3. 函数外延性成立.
+4. 存在一个空集.
+5. 给定集合 `X` 和 `Y`, 存在 `X` 和 `Y` 的积.
+6. 给定集合 `X` 和 `Y`, 存在 `X` 到 `Y` 的函数集.
+7. 给定函数 `f : X →̇ Y` 和元素 `y ∈ Y`, 存在 `f` 在 `y` 上的纤维.
+8. 存在一个子集分类器.
+9. 存在一个自然数系统.
+10. 每个满射都有一个截面.
+
+公理 3, 4 和 7 都涉及到元素, 它定义为定义域为终集 `１` 的函数. 公理 2 以及 5–9 都涉及到泛性质, 并且所有这些公理唯一地刻画了涉及的集合 （在同构意义上）, 这将在接下来的几篇中证明.
 
 ```agda
 record ETCS : Set₁ where
