@@ -290,7 +290,7 @@ record Data : Set₁ where
     field AxFuncSet : Σ (Diagram (FuncSet X Y)) isFuncSet
 ```
 
-**定义 2.7.3** 给定函数 `f : X →̇ Y` 和元素 `y ∈ Y`, 我们按以下四步定义关于 `f` 和 `y` 的纤维的泛性质.
+**定义 3.1.4** 给定函数 `f : X →̇ Y` 和元素 `y ∈ Y`, 我们按以下四步定义关于 `f` 和 `y` 的纤维的泛性质.
 
 第零步, 定义什么叫纤维: 我们说一个集合 `U` 配合上一个包含函数 `i : U →̇ X` 是 `f` 在 `y` 上的纤维, 记作 `U withInclusion i isFibreOf f over y`, 当且仅当对任意 `u ∈ U` 都有 `f ⦅ i ⦅ u ⦆ ⦆ ≡ y`, 也就是下图交换. 由于这样的 `U` 一般又记作 $f^{-1}(y)$, 图中用此记法.
 
@@ -332,6 +332,22 @@ record Data : Set₁ where
     field AxFibre : {f : X →̇ Y} {y : Elm Y} → Σ (Diagram (Fibre f y)) isFibre
 ```
 
+**定义 3.2.1** 我们按以下三步定义子集分类器的泛性质.
+
+第一步, 我们定义子集分类器图式, 它包含如下资料:
+
+- 一个集合 `Ω`
+- 一个集合 `T`
+- 一个函数 `t : T →̇ Ω`
+
+简记作 `(Ω , T , t)`.
+
+第二步, 定义子集分类器图式的交换: 我们说两个子集分类器图式 `(A , X , i)` 和 `(Ω , T , t)` 以及底集间映射 `χ : A →̇ Ω` 交换, 当且仅当如果 `T ≡ １`, 那么 `X` 配合上 `i` 是 `χ` 在 `t` 上的纤维.
+
+第三步, 定义子集分类器的泛性质: 我们说一个子集分类器图式 `(Ω , T , t)` 满足子集分类器的泛性质, 当且仅当对任意子集分类器图式 `(A , X , i)`, 存在唯一的底集间映射 `χ : A →̇ Ω` 使得它们交换.
+
+![Image](https://pic4.zhimg.com/80/v2-4a23a3be42899b6e8ce7187429bfb81e.png)
+
 ```agda
     -- Definition 3.2.1
     SubCls : Arrow
@@ -344,6 +360,8 @@ record Data : Set₁ where
     isSubCls : Diagram SubCls → Set
     isSubCls = universal SubClsCommuter
 ```
+
+**公理 8** 存在一个子集分类器图式满足子集分类器的泛性质.
 
 ```agda
     -- Axiom 8
