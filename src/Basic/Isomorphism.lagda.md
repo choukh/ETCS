@@ -84,15 +84,13 @@ isIso-⁻¹ {f} (f⁻¹ , p , q) = f , q , p
 ```
 
 ```agda
-isoInvariant⟨_⟩ : {A : Set} (C : Commuter A) (P : A → Set) → Set
-isoInvariant⟨_⟩ (π , comm) P = ∀ {a b} (j : π a →̇ π b) → isIso j → comm a b j → P a → P b
+isoInvariant⟨_⟩ : {A : Arrow} (C : Commuter A) (P : Diagram A → Set) → Set
+isoInvariant⟨_⟩ {A} C P = {a@(X , _) b@(Y , _) : Diagram A}
+  (j : X →̇ Y) → isIso j → C a b j → P a → P b
+```
 
-isoUnique⟨_⟩ : {A : Set} (C : Commuter A) (P : A → Set) → Set
-isoUnique⟨_⟩ (π , comm) P = ∀ {a b} → P a → P b → Σ (π a →̇ π b) λ j → isIso j × comm a b j × unique (comm a b)
-
-isoInvariant : (P : CSet → Set) → Set
-isoInvariant P = isoInvariant⟨ id⒨ , (λ _ _ _ → ⊤) ⟩ P
-
-isoUnique : (P : CSet → Set) → Set
-isoUnique P = isoUnique⟨ id⒨ , (λ _ _ _ → ⊤) ⟩ P
+```agda
+isoUnique⟨_⟩ : {A : Arrow} (C : Commuter A) (P : Diagram A → Set) → Set
+isoUnique⟨_⟩ {A} C P = {a@(X , _) b@(Y , _) : Diagram A} →
+  P a → P b → Σ (X →̇ Y) λ j → isIso j × C a b j × unique (C a b)
 ```

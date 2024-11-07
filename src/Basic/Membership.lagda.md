@@ -10,7 +10,7 @@ open import Relation.Nullary using (¬_)
 
 ```agda
 -- Lemma 2.3.3
-isoInvariant-isTerminal : isoInvariant isTerminal
+isoInvariant-isTerminal : isoInvariant⟨ TerminalCommuter ⟩ isTerminal
 isoInvariant-isTerminal {a = T} {b = T′} j (j⁻¹ , jj⁻¹ , _) tt tml X =
   let (f , tt) , f! = tml X in
   (j ∘ f , tt) , λ {f′ g′} _ _ → begin
@@ -22,24 +22,24 @@ isoInvariant-isTerminal {a = T} {b = T′} j (j⁻¹ , jj⁻¹ , _) tt tml X =
 
 ```agda
 -- Lemma 2.3.4
-isoUnique-isTerminal : isoUnique isTerminal
-isoUnique-isTerminal {a = T} {b = T′} tT tT′ =
+isoUnique-isTerminal : isoUnique⟨ TerminalCommuter ⟩ isTerminal
+isoUnique-isTerminal a@{T , _} b@{T′ , _} ta tb =
   let f : T →̇ T′
-      f = tT′ T .fst .fst
+      f = tb a .fst .fst
       f′ : T′ →̇ T
-      f′ = tT T′ .fst .fst
+      f′ = ta b .fst .fst
       ff′ : f ∘ f′ ≡ id
-      ff′ = tT′ T′ .snd tt tt
+      ff′ = tb b .snd tt tt
       f′f : f′ ∘ f ≡ id
-      f′f = tT T .snd tt tt
+      f′f = ta a .snd tt tt
       f≡g : {f g : T →̇ T′} → f ≡ g
-      f≡g = tT′ T .snd tt tt
+      f≡g = tb a .snd tt tt
   in f , (f′ , ff′ , f′f) , tt , λ _ _ → f≡g
 ```
 
 ```agda
 !⟨_⟩ : (X : CSet) → X →̇ １
-!⟨ X ⟩ = AxTml .snd X .fst .fst
+!⟨ X ⟩ = AxTml .snd (X , tt) .fst .fst
 
 ! : X →̇ １
 ! {X} = !⟨ X ⟩
@@ -59,22 +59,22 @@ oneElement : CSet → Set
 oneElement X = Elm X × ∀ {x y : Elm X} → x ≡ y
 
 * : Elm １
-* = AxTml .snd １ .fst .fst
+* = AxTml .snd (１ , tt) .fst .fst
 
 oneElement-１ : oneElement １
-oneElement-１ = * , AxTml .snd １ .snd tt tt
+oneElement-１ = * , AxTml .snd (１ , tt) .snd tt tt
 ```
 
 ```agda
 -- Lemma 2.4.1
-isTerminal→oneElement : isTerminal X → oneElement X
-isTerminal→oneElement tml = tml １ .fst .fst , tml １ .snd tt tt
+isTerminal→oneElement : isTerminal (X , tt) → oneElement X
+isTerminal→oneElement tml = tml (１ , tt) .fst .fst , tml (１ , tt) .snd tt tt
 
-oneElement→isTerminal : oneElement X → isTerminal X
+oneElement→isTerminal : oneElement X → isTerminal (X , tt)
 oneElement→isTerminal (x , x!) = isoInvariant-isTerminal
   x (! , AxFunExt q , p) tt (AxTml .snd) where
     p : {x y : Elm １} → x ≡ y
-    p = AxTml .snd １ .snd tt tt
+    p = AxTml .snd (１ , tt) .snd tt tt
     q = λ y →         begin
       (x ∘ !) ∘ y     ≡⟨ AssIdʳ p ⟩
       x               ≡⟨ x! ⟩
@@ -86,10 +86,4 @@ oneElement→isTerminal (x , x!) = isoInvariant-isTerminal
 -- Example 2.5.2
 _ : ¬ empty １
 _ = λ p → p *
-```
-
-```agda
--- Exercise 2.6.4
-_ : ((P , _) : ProductDiagram X Y) → empty X → empty P
-_ = λ (P , p , _) eX q → eX (p ⦅ q ⦆)
 ```

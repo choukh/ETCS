@@ -9,6 +9,12 @@ open import Function using (_$_)
 ```
 
 ```agda
+-- Exercise 2.6.4
+_ : ((P , _) : Diagram (Product X Y)) → empty X → empty P
+_ = λ (P , p , _) eX q → eX (p ⦅ q ⦆)
+```
+
+```agda
 -- Lemma 2.6.6
 isoInvariant-isProduct : isoInvariant⟨ ProductCommuter ⟩ (isProduct {X} {Y})
 isoInvariant-isProduct {a = P , p , q} {b = P′ , p′ , q′}
@@ -61,7 +67,7 @@ isoInvariant-isProduct {a = P , p , q} {b = P′ , p′ , q′}
 
 ```agda
 -- Exercise 2.6.7
-isoInvariant-isProduct-XY : (a@(P , p , q) : ProductDiagram X Y)
+isoInvariant-isProduct-XY : (a@(P , p , q) : Diagram (Product X Y))
   ((j , _) : X ≅ X′) ((k , _) : Y ≅ Y′) →
   isProduct a → isProduct (P , j ∘ p , k ∘ q)
 isoInvariant-isProduct-XY a@(P , p , q) (j , j⁻¹ , jj⁻¹ , j⁻¹j) (k , k⁻¹ , kk⁻¹ , k⁻¹k) Pa c@(A , f , g) =

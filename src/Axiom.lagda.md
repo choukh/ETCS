@@ -1,9 +1,9 @@
 ---
-title: 公理化结构集合论 (1 - 公理)
+title: 公理化结构集合论 (1 公理)
 zhihu-tags: Agda, 集合论, 范畴论, 数学基础
 ---
 
-# 公理化结构集合论 (1 - 公理)
+# 公理化结构集合论 (1 公理)
 
 > 交流Q群: 893531731  
 > 本文源码: [Axiom.lagda.md](https://github.com/choukh/ETCS/blob/main/src/Axiom.lagda.md)  
@@ -11,7 +11,7 @@ zhihu-tags: Agda, 集合论, 范畴论, 数学基础
 
 ## 前言
 
-本系列文章是 Tom Leinster 在爱丁堡大学讲授的公理化结构集合论 (ETCS) 本科课程[讲义](https://www.maths.ed.ac.uk/~tl/ast/ast.pdf) (以下简称讲义) 的 Agda 形式化. 符号和定义基本上遵循讲义, 定理编号与讲义完全一致, 但由于 Agda 的特性而稍微调整了顺序.
+本系列文章是 Tom Leinster 在爱丁堡大学讲授的公理化结构集合论 (ETCS) 本科课程[讲义](https://www.maths.ed.ac.uk/~tl/ast/ast.pdf) (以下简称讲义) 的 Agda 形式化. 我们的符号选取和定义表述基本上遵循讲义, 而定理编号与讲义完全一致, 但由于 Agda 的特性而稍微调整了顺序.
 
 我们采用原味 Agda 加 stdlib 标准库, 这是我们的元语言, 而 ETCS 将是我们的对象语言. 由于两层语言的高度相似性, 它们的符号/命名冲突我们主要采用如下两种方式解决.
 
@@ -29,7 +29,7 @@ open import Function public using (case_of_) renaming (id to id⒨)
 open import Relation.Binary.PropositionalEquality public
 ```
 
-本文是系列的第一篇, 我们引入 ETCS 的10条公理. 为了表示公理, 首先需要引入 ETCS 的原始概念, 讲义中称它们为资料 (the data), 也有称之为原语 (primitives) , 语言 (language) 或签名 (signature) 的.
+本文是系列的第一篇, 我们引入 ETCS 的10条公理. 为了表示公理, 首先需要引入 ETCS 的原始概念, 讲义中称它们为资料 (the data), 有的地方也称之为原语 (primitives) , 语言 (language) 或签名 (signature).
 
 ## 原始概念
 
@@ -38,7 +38,7 @@ open import Relation.Binary.PropositionalEquality public
 - 一些称为集合的东西, 这样的集合 `X` 记作 `X : CSet`, 其中 C 来自范畴 (category).
 - 对每个集合 `X` 和 `Y`, 一些称为「`X` 到 `Y` 的函数」的东西, 这样的函数 `f` 记作 `f : X →̇ Y`.
 - 对每个集合 `X`, `Y` 和 `Z`, 一个称为「复合」的运算, 将每个 `f : X →̇ Y` 和 `g : Y →̇ Z` 赋值为一个函数 `g ∘ f : X →̇ Z`.
-- 对每个集合 `X`, 一个称为「恒等函数」的东西, 记作 `id⟨ X ⟩ : X →̇ X`, `X` 可以从上下文推断出来时简记作 `id : X →̇ X`.
+- 对每个集合 `X`, 一个称为「恒等函数」的东西, 记作 `id⟨ X ⟩ : X →̇ X`, `X` 可以从上下文推断出来时简记作 `id`.
 
 ```agda
 -- 2.1 The data
@@ -55,18 +55,32 @@ record Data : Set₁ where
   id {X} = id⟨ X ⟩
 ```
 
+我们会形式化讲义中没有编号的概念, 这些概念我们编号为 -1.
+
+**定义 -1.1** 对任意性质 `P`, 我们说 `P` 的见证是唯一的, 记作 `unique P`, 当且仅当对任意 `a` 和 `b`, 有 `P a` 和 `P b` 蕴含 `a ≡ b`.
+
 ```agda
   unique : {A : Set} (P : A → Set) → Set
   unique P = ∀ {a b} → P a → P b → a ≡ b
+```
 
-  ∀∃! : {A : Set} (B : A → Set) (P : ∀ x → B x → Set ) → Set
-  ∀∃! B P = ∀ x → (Σ (B x) (P x)) × unique (P x)
+```agda
+  Arrow : Set₁
+  Arrow = CSet → Set
 
-  Commuter : (A : Set) → Set₁
-  Commuter A = Σ (A → CSet) λ π → (a b : A) (j : π a →̇ π b) → Set
+  Diagram : (A : Arrow) → Set
+  Diagram = Σ CSet
+```
 
-  universal : {A : Set} → Commuter A → A → Set
-  universal (π , comm) a = ∀∃! (λ x → π x →̇ π a) λ x → comm x a
+```agda
+  Commuter : (A : Arrow) → Set₁
+  Commuter A = ((X , _) (Y , _) : Diagram A) (j : X →̇ Y) → Set
+```
+
+```agda
+  universal : {A : Arrow} → Commuter A → Diagram A → Set
+  universal {A} C b@(Y , _) = (a@(X , _) : Diagram A) →
+    (Σ (X →̇ Y) λ j → C a b j) × unique (C a b)
 ```
 
 我们约定用 `A W X Y Z X′ Y′` 表示集合, 用 `f g h f′ g′` 表示函数.
@@ -97,24 +111,26 @@ record Data : Set₁ where
 
 ```agda
     -- Definition 2.3.1
-    TerminalDiagram : Set
-    TerminalDiagram = CSet
+    Terminal : Arrow
+    Terminal = λ _ → ⊤
 
-    TerminalCommuter : Commuter TerminalDiagram
-    TerminalCommuter = id⒨ , λ X T j → ⊤
+    TerminalCommuter : Commuter Terminal
+    TerminalCommuter = λ _ _ _ → ⊤
 
-    isTerminal : CSet → Set
+    isTerminal : Diagram Terminal → Set
     isTerminal = universal TerminalCommuter
+```
 
+```agda
     -- Axiom 2
-    field AxTml : Σ CSet isTerminal
+    field AxTml : Σ (Diagram Terminal) isTerminal
 ```
 
 ### Axiom 3
 
 ```agda
     １ : CSet
-    １ = AxTml .fst
+    １ = AxTml .fst .fst
 
     Elm : CSet → Set
     Elm = １ →̇_
@@ -153,19 +169,19 @@ record Data : Set₁ where
 
 ```agda
     -- Definition 2.6.2
-    ProductDiagram : (X Y : CSet) → Set
-    ProductDiagram X Y = Σ CSet λ P → P →̇ X × P →̇ Y
+    Product : (X Y : CSet) → Arrow
+    Product X Y = λ P → P →̇ X × P →̇ Y
 
-    ProductCommuter : Commuter (ProductDiagram X Y)
-    ProductCommuter = fst , λ { (A , f , g) (P , p , q) h → p ∘ h ≡ f × q ∘ h ≡ g }
+    ProductCommuter : Commuter (Product X Y)
+    ProductCommuter = λ (A , f , g) (P , p , q) h → p ∘ h ≡ f × q ∘ h ≡ g
 
-    isProduct : ProductDiagram X Y → Set
+    isProduct : Diagram (Product X Y) → Set
     isProduct = universal ProductCommuter
 ```
 
 ```agda
     -- Axiom 5
-    field AxProd : Σ (ProductDiagram X Y) isProduct
+    field AxProd : Σ (Diagram (Product X Y)) isProduct
 ```
 
 ```agda
@@ -182,20 +198,20 @@ record Data : Set₁ where
 
 ```agda
     -- Definition 2.7.3
-    FuncSetDiagram : (X Y : CSet) → Set
-    FuncSetDiagram X Y = Σ CSet λ F → F ×̇ X →̇ Y
+    FuncSet : (X Y : CSet) → Arrow
+    FuncSet X Y = λ F → F ×̇ X →̇ Y
 
-    FuncSetCommuter : Commuter (FuncSetDiagram X Y)
-    FuncSetCommuter {X} = fst , λ { (A , q) (F , e) q̅ →
-      ∀[ a ∈ A ] ∀[ x ∈ X ] q ⦅ a ,̇ x ⦆ ≡ e ⦅ q̅ ⦅ a ⦆ ,̇ x ⦆ }
+    FuncSetCommuter : Commuter (FuncSet X Y)
+    FuncSetCommuter {X} = λ (A , q) (F , e) q̅ →
+      ∀[ a ∈ A ] ∀[ x ∈ X ] q ⦅ a ,̇ x ⦆ ≡ e ⦅ q̅ ⦅ a ⦆ ,̇ x ⦆
 
-    isFuncSet : FuncSetDiagram X Y → Set
+    isFuncSet : Diagram (FuncSet X Y) → Set
     isFuncSet = universal FuncSetCommuter
 ```
 
 ```agda
     -- Axiom 6
-    field AxFuncSet : Σ (FuncSetDiagram X Y) isFuncSet
+    field AxFuncSet : Σ (Diagram (FuncSet X Y)) isFuncSet
 ```
 
 ### Axiom 7
@@ -205,59 +221,59 @@ record Data : Set₁ where
     _isFibreOf_over_ : {U : CSet} (i : U →̇ X) (f : X →̇ Y) (y : Elm Y) → Set
     i isFibreOf f over y = ∀[ u ∈ _ ] f ⦅ i ⦅ u ⦆ ⦆ ≡ y
 
-    FibreDiagram : (f : X →̇ Y) (y : Elm Y) → Set
-    FibreDiagram {X} f y = Σ CSet λ U → Σ (U →̇ X) (_isFibreOf f over y)
+    Fibre : (f : X →̇ Y) (y : Elm Y) → Arrow
+    Fibre {X} f y = λ U → Σ (U →̇ X) (_isFibreOf f over y)
 
-    FibreCommuter : {f : X →̇ Y} {y : Elm Y} → Commuter (FibreDiagram f y)
-    FibreCommuter = fst , λ { (A , q , fqa) (U , i , fiu) q̅ → q ≡ i ∘ q̅ }
+    FibreCommuter : {f : X →̇ Y} {y : Elm Y} → Commuter (Fibre f y)
+    FibreCommuter = λ (A , q , fqa) (U , i , fiu) q̅ → q ≡ i ∘ q̅
 
-    isFibre : {f : X →̇ Y} {y : Elm Y} → FibreDiagram f y → Set
+    isFibre : {f : X →̇ Y} {y : Elm Y} → Diagram (Fibre f y) → Set
     isFibre = universal FibreCommuter
 ```
 
 ```agda
     -- Axiom 7
-    field AxFibre : {f : X →̇ Y} {y : Elm Y} → Σ (FibreDiagram f y) isFibre
+    field AxFibre : {f : X →̇ Y} {y : Elm Y} → Σ (Diagram (Fibre f y)) isFibre
 ```
 
 ### Axiom 8
 
 ```agda
     -- Definition 3.2.1
-    SubClsDiagram : Set
-    SubClsDiagram = Σ CSet λ Ω → Σ CSet λ T → T →̇ Ω
+    SubCls : Arrow
+    SubCls = λ Ω → Σ CSet λ T → T →̇ Ω
 
-    SubClsCommuter : Commuter SubClsDiagram
-    SubClsCommuter = fst , λ { (A , X , i) (Ω , T , t) χ → (eq : T ≡ １) →
-      case eq of λ { refl → i isFibreOf χ over t } }
+    SubClsCommuter : Commuter SubCls
+    SubClsCommuter = λ (A , X , i) (Ω , T , t) χ → (eq : T ≡ １) →
+      case eq of λ { refl → i isFibreOf χ over t }
 
-    isSubCls : SubClsDiagram → Set
+    isSubCls : Diagram SubCls → Set
     isSubCls = universal SubClsCommuter
 ```
 
 ```agda
     -- Axiom 8
-    field AxSubCls : Σ SubClsDiagram λ d@(_ , T , _) → T ≡ １ × isSubCls d
+    field AxSubCls : Σ (Diagram SubCls) λ d@(_ , T , _) → T ≡ １ × isSubCls d
 ```
 
 ### Axiom 9
 
 ```agda
     -- Definition 3.3.2
-    NatDiagram : Set
-    NatDiagram = Σ CSet λ N → Elm N × N →̇ N
+    Nat : Arrow
+    Nat = λ N → Elm N × N →̇ N
 
-    NatCommuter : Commuter NatDiagram
-    NatCommuter = fst , λ (N , z , σ) (X , a , r) x →
+    NatCommuter : Commuter Nat
+    NatCommuter = λ (N , z , σ) (X , a , r) x →
       ∀[ n ∈ N ] (x ⦅ z ⦆ ≡ a × x ⦅ σ ⦅ n ⦆ ⦆ ≡ r ⦅ x ⦅ n ⦆ ⦆)
 
-    isNat : NatDiagram → Set
+    isNat : Diagram Nat → Set
     isNat = universal NatCommuter
 ```
 
 ```agda
     -- Axiom 9
-    field AxNat : Σ NatDiagram isNat
+    field AxNat : Σ (Diagram Nat) isNat
 ```
 
 ### Axiom 10
