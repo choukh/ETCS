@@ -11,7 +11,7 @@ zhihu-tags: Agda, 集合论, 范畴论, 数学基础
 
 ## 前言
 
-本系列文章是对 Tom Leinster 在爱丁堡大学教授的本科课程「公理化结构集合论（ETCS）」讲义（以下简称「讲义」）的 Agda 形式化。 我们的符号选取和定义表述基本上遵循讲义, 而定理编号与讲义完全一致, 但由于 Agda 的特性而稍微调整了顺序.
+本系列文章是对 Tom Leinster 在爱丁堡大学教授的本科课程「公理化结构集合论（ETCS）」讲义（以下简称「讲义」）的 Agda 形式化. 我们的符号选取和定义表述基本上遵循讲义, 而定理编号与讲义完全一致, 但由于 Agda 的特性而稍微调整了顺序. 注意我们讲的是一种可以作为数学基础的集合论而不是范畴论, 虽然借用了一些范畴论的术语和思想, 但不需要先掌握范畴论.
 
 我们采用原味 Agda 加 stdlib 标准库, 这是我们的元语言, 而 ETCS 将是我们的对象语言. 由于两层语言的高度相似性, 它们的符号/命名冲突我们主要采用如下两种方式解决.
 
@@ -145,6 +145,8 @@ record Data : Set₁ where
     field AxTml : Σ (Diagram Terminal) isTerminal
 ```
 
+我们将在后篇证明这样的终集合是唯一的. 实际上, 我们会证明所有用泛性质框定的集合都是唯一的. 所以定义了一种泛性质就唯一定义了一种集合, 所以我们后面会直接说「定义某种集合的泛性质」, 这应该理解为就是在「定义某种集合」.
+
 我们把公理2承诺的集合记作 `１`, 因为它里面只有一个元素, 这会在下一章证明.
 
 ```agda
@@ -166,7 +168,7 @@ record Data : Set₁ where
     syntax ∀[∈]-syntax X (λ x → A) = ∀[ x ∈ X ] A
 ```
 
-注意 `x ∈ X` 是一个声明而不是可以讨论真假的命题, 这一点与质料集合论 (ZFC等) 不同.
+**注意** `x ∈ X` 是一个声明而不是可以讨论真假的命题, 这一点与质料集合论 (ZFC等) 不同. 就像我们说「给定集合 `X`, 怎么怎么样」一样, 这里不存在 「`X` 是不是集合」的问题, 我们也只能说「给定元素 `x ∈ X`, 怎么怎么样」, 而不存在 「`x` 是不是 `X` 的元素」的问题.
 
 给定函数 `f : X →̇ Y` 和一个元素 `x ∈ X`, 我们把复合函数 `f ∘ x` 记作 `f ⦅ x ⦆`.
 
@@ -198,10 +200,11 @@ record Data : Set₁ where
     field AxEmpty : Σ CSet empty
 ```
 
-**定义 2.6.2** 给定集合 `X Y : CSet`, 我们按如下三步定义它们的积的泛性质.
+**定义 2.6.2** 给定集合 `X Y : CSet`, 我们按以下三步定义它们的积的泛性质.
 
-第一步, 定义积 `P` 的箭头, 它包含如下资料:
+第一步, 定义积图式, 它包含如下资料:
 
+- 一个集合 `P`
 - 一个函数 `p : P →̇ X`
 - 一个函数 `q : P →̇ Y`
 
@@ -242,7 +245,7 @@ record Data : Set₁ where
     X ×̇ Y = AxProd {X} {Y} .fst .fst
 ```
 
-给定集合 `X Y A : CSet` 和函数 `f : A →̇ X` `g : A →̇ Y`, 公理5承诺了积图示 `(A , f , g)` 到积图示 `(X ×̇ Y , p , q)` 的底集间唯一映射, 我们记作 `f ,̇ g : A →̇ X ×̇ Y`. 特别地, 当 `A ≡ １` 时, `f` 是 `X` 的元素, `g` 是 `Y` 的元素, `f ,̇ g` 是 `X ×̇ Y` 的元素.
+给定集合 `X Y A : CSet` 和函数 `f : A →̇ X` `g : A →̇ Y`, 公理5承诺了积图示 `(A , f , g)` 到积图示 `(X ×̇ Y , p , q)` 的底集间唯一映射, 我们记作 `f ,̇ g : A →̇ X ×̇ Y`. 如下图所示, 其中虚线表示唯一. 特别地, 当 `A ≡ １` 时, `f` 是 `X` 的元素, `g` 是 `Y` 的元素, `f ,̇ g` 是 `X ×̇ Y` 的元素.
 
 ![Image](https://pic4.zhimg.com/80/v2-2d6538eb4972f971f7a6362c7763612f.png)
 
@@ -252,13 +255,14 @@ record Data : Set₁ where
     f ,̇ g = AxProd .snd (_ , f , g) .fst .fst
 ```
 
-**定义 2.7.3** 给定集合 `X Y : CSet`, 我们按如下三步定义它们的函数集 (简称幂) 的泛性质.
+**定义 2.7.3** 给定集合 `X Y : CSet`, 我们按以下三步定义它们的函数集 (简称幂) 的泛性质.
 
-第一步, 定义幂 `F` 的箭头, 它包含如下资料:
+第一步, 定义幂图式, 它包含如下资料:
 
+- 一个集合 `F`
 - 一个函数 `e : F ×̇ X →̇ Y`
 
-于是幂图式由一个集合 `F` 和箭头 `e : F ×̇ X →̇ Y` 组成, 我们记作 `(F , e)`.
+简记作 `(F , e)`.
 
 第二步, 定义幂图式的交换: 我们说两个幂图式 `(A , q)` 和 `(F , e)` 以及底集间映射 `q̅ : A →̇ F` 交换, 当且仅当对任意 `a ∈ A` 和 `x ∈ X` 都有 `q ⦅ a ,̇ x ⦆ ≡ e ⦅ q̅ ⦅ a ⦆ ,̇ x ⦆`.
 
@@ -286,13 +290,33 @@ record Data : Set₁ where
     field AxFuncSet : Σ (Diagram (FuncSet X Y)) isFuncSet
 ```
 
+**定义 2.7.3** 给定函数 `f : X →̇ Y` 和元素 `y ∈ Y`, 我们按以下四步定义关于 `f` 和 `y` 的纤维的泛性质.
+
+第零步, 定义什么叫纤维: 我们说一个集合 `U` 配合上一个包含函数 `i : U →̇ X` 是 `f` 在 `y` 上的纤维, 记作 `U withInclusion i isFibreOf f over y`, 当且仅当对任意 `u ∈ U` 都有 `f ⦅ i ⦅ u ⦆ ⦆ ≡ y`, 也就是下图交换. 由于这样的 `U` 一般又记作 $f^{-1}(y)$, 图中用此记法.
+
+第一步, 定义纤维图式, 它包含如下资料:
+
+- 一个集合 `U`
+- 一个函数 `i : U →̇ X`
+- 一个证明: `U` 配合上一个包含函数 `i : U →̇ X` 是 `f` 在 `y` 上的纤维
+
+简记作 `(U , i , fiu)`.
+
+![Image](https://pic4.zhimg.com/80/v2-e279d11dcaed857517f4f8edc2cdd1d2.png)
+
+第二步, 定义纤维图式的交换: 我们说两个纤维图式 `(A , q , fqa)` 和 `(U , i , fiu)` 以及底集间映射 `q̅ : A →̇ U` 交换, 当且仅当 `q ≡ i ∘ q̅`.
+
+![Image](https://pic4.zhimg.com/80/v2-a5bf2b3be3ab0027b8d64bfad76b274b.png)
+
+第三步, 定义纤维的泛性质: 我们说一个纤维图式 `(U , i , fiu)` 满足纤维的泛性质, 当且仅当对任意纤维图式 `(A , q , fqa)`, 存在唯一的底集间映射 `q̅ : A →̇ U` 使得它们交换.
+
 ```agda
     -- Definition 3.1.4
-    _isFibreOf_over_ : {U : CSet} (i : U →̇ X) (f : X →̇ Y) (y : Elm Y) → Set
-    i isFibreOf f over y = ∀[ u ∈ _ ] f ⦅ i ⦅ u ⦆ ⦆ ≡ y
+    _withInclusion_isFibreOf_over_ : (U : CSet) (i : U →̇ X) (f : X →̇ Y) (y : Elm Y) → Set
+    U withInclusion i isFibreOf f over y = ∀[ u ∈ _ ] f ⦅ i ⦅ u ⦆ ⦆ ≡ y
 
     Fibre : (f : X →̇ Y) (y : Elm Y) → Arrow
-    Fibre {X} f y = λ U → Σ (U →̇ X) (_isFibreOf f over y)
+    Fibre {X} f y = λ U → Σ (U →̇ X) λ i → U withInclusion i isFibreOf f over y
 
     FibreCommuter : {f : X →̇ Y} {y : Elm Y} → Commuter (Fibre f y)
     FibreCommuter = λ (A , q , fqa) (U , i , fiu) q̅ → q ≡ i ∘ q̅
@@ -300,6 +324,8 @@ record Data : Set₁ where
     isFibre : {f : X →̇ Y} {y : Elm Y} → Diagram (Fibre f y) → Set
     isFibre = universal FibreCommuter
 ```
+
+**公理 7** 对任意 `f : X →̇ Y` 和元素 `y ∈ Y`, 存在纤维图式满足纤维的泛性质.
 
 ```agda
     -- Axiom 7
@@ -313,7 +339,7 @@ record Data : Set₁ where
 
     SubClsCommuter : Commuter SubCls
     SubClsCommuter = λ (A , X , i) (Ω , T , t) χ → (eq : T ≡ １) →
-      case eq of λ { refl → i isFibreOf χ over t }
+      case eq of λ { refl → X withInclusion i isFibreOf χ over t }
 
     isSubCls : Diagram SubCls → Set
     isSubCls = universal SubClsCommuter
