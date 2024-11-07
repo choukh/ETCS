@@ -217,7 +217,7 @@ record Data : Set₁ where
 
 于是一个积图式具有如下形式
 
-![Image](https://pic4.zhimg.com/80/v2-4102e695eae0d63c5a11e9aef1af1ee5.png)
+![积图式](https://pic4.zhimg.com/80/v2-7e2a8ae22d3645250a1f82970ba78df1.png)
 
 我们将这样的积图式简记作 `(P , p , q)`.
 
@@ -254,7 +254,7 @@ record Data : Set₁ where
 
 给定集合 `X Y A : CSet` 和函数 `f : A →̇ X` `g : A →̇ Y`, 公理5承诺了积图示 `(A , f , g)` 到积图示 `(X ×̇ Y , p , q)` 的底集间唯一映射, 我们记作 `f ,̇ g : A →̇ X ×̇ Y`. 如下图所示, 其中虚线表示唯一. 特别地, 当 `A ≡ １` 时, `f` 是 `X` 的元素, `g` 是 `Y` 的元素, `f ,̇ g` 是 `X ×̇ Y` 的元素.
 
-![Image](https://pic4.zhimg.com/80/v2-2d6538eb4972f971f7a6362c7763612f.png)
+![积的元素](https://pic4.zhimg.com/80/v2-2cfcd05207f77e2d965658d158731767.png)
 
 ```agda
     infixr 5 _,̇_
@@ -275,7 +275,7 @@ record Data : Set₁ where
 
 第三步, 定义幂的泛性质: 我们说一个幂图式 `(F , e)` 满足幂的泛性质, 当且仅当对任意幂图式 `(A , q)`, 存在唯一的底集间映射 `q̅ : A →̇ F` 使得它们交换.
 
-![Image](https://pic4.zhimg.com/80/v2-687dfd1332dea8dea293646f54c437c1.png)
+![幂的泛性质](https://pic4.zhimg.com/80/v2-c1ac35162eb7a8183ccbb9f9d7321196.png)
 
 ```agda
     -- Definition 2.7.3
@@ -309,13 +309,13 @@ record Data : Set₁ where
 
 简记作 `(U , i , fiu)`.
 
-![Image](https://pic4.zhimg.com/80/v2-e279d11dcaed857517f4f8edc2cdd1d2.png)
+![纤维图式](https://pic4.zhimg.com/80/v2-bcacd8638c0c142fb4422fe291b632f7.png)
 
 第二步, 定义纤维图式的交换: 我们说两个纤维图式 `(A , q , fqa)` 和 `(U , i , fiu)` 以及底集间映射 `q̅ : A →̇ U` 交换, 当且仅当 `q ≡ i ∘ q̅`.
 
-![Image](https://pic4.zhimg.com/80/v2-a5bf2b3be3ab0027b8d64bfad76b274b.png)
-
 第三步, 定义纤维的泛性质: 我们说一个纤维图式 `(U , i , fiu)` 满足纤维的泛性质, 当且仅当对任意纤维图式 `(A , q , fqa)`, 存在唯一的底集间映射 `q̅ : A →̇ U` 使得它们交换.
+
+![纤维的泛性质](https://pic4.zhimg.com/80/v2-0f5d1b447ca9b15abfd4df13ad044223.png)
 
 ```agda
     -- Definition 3.1.4
@@ -353,7 +353,7 @@ record Data : Set₁ where
 
 第三步, 定义子集分类器的泛性质: 我们说一个子集分类器图式 `(Ω , T , t)` 满足子集分类器的泛性质, 当且仅当对任意子集分类器图式 `(A , X , i)`, 存在唯一的底集间映射 `χ : A →̇ Ω` 使得它们交换.
 
-![Image](https://pic4.zhimg.com/80/v2-4a23a3be42899b6e8ce7187429bfb81e.png)
+![子集分类器的泛性质](https://pic4.zhimg.com/80/v2-f1f7a1eec3df674886ffa5161566c82b.png)
 
 ```agda
     -- Definition 3.2.1
@@ -387,7 +387,7 @@ record Data : Set₁ where
 
 第三步, 定义自然数的泛性质: 我们说一个自然数图式 `(N , z , σ)` 满足自然数的泛性质, 当且仅当对任意自然数图式 `(X , a , r)`, 存在唯一的底集间映射 `x : N →̇ X` 使得它们交换.
 
-![Image](https://pic4.zhimg.com/80/v2-e45551a00cb7f8e004d3a63e3f29ece0.png)
+![自然数的泛性质](https://pic4.zhimg.com/80/v2-a643f6546c3ea362bb62336c01d46535.png)
 
 ```agda
     -- Definition 3.3.2
@@ -454,7 +454,7 @@ record Data : Set₁ where
 9. 存在一个自然数系统.
 10. 每个满射都有一个截面.
 
-公理 3, 4 和 7 都涉及到元素, 它定义为定义域为终集 `１` 的函数. 公理 2 以及 5–9 都涉及到泛性质, 并且所有这些公理唯一地刻画了涉及的集合 （在同构意义上）, 这将在接下来的几篇中证明.
+公理 3, 4 和 7 都涉及到元素, 它定义为定义域为终集 `１` 的函数. 公理 2 以及 5–9 都涉及到泛性质, 并且所有这些公理唯一地刻画了涉及的集合 (在同构意义上), 这将在接下来的几篇中证明.
 
 ```agda
 record ETCS : Set₁ where
