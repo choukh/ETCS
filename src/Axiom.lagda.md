@@ -200,7 +200,7 @@ record Data : Set₁ where
 
 **定义 2.6.2** 给定集合 `X Y : CSet`, 我们按如下三步定义它们的积的泛性质.
 
-第一步, 定义积的箭头, 它包含如下资料:
+第一步, 定义积 `P` 的箭头, 它包含如下资料:
 
 - 一个函数 `p : P →̇ X`
 - 一个函数 `q : P →̇ Y`
@@ -252,6 +252,20 @@ record Data : Set₁ where
     f ,̇ g = AxProd .snd (_ , f , g) .fst .fst
 ```
 
+**定义 2.7.3** 给定集合 `X Y : CSet`, 我们按如下三步定义它们的函数集 (简称幂) 的泛性质.
+
+第一步, 定义幂 `F` 的箭头, 它包含如下资料:
+
+- 一个函数 `e : F ×̇ X →̇ Y`
+
+于是幂图式由一个集合 `F` 和箭头 `e : F ×̇ X →̇ Y` 组成, 我们记作 `(F , e)`.
+
+第二步, 定义幂图式的交换: 我们说两个幂图式 `(A , q)` 和 `(F , e)` 以及底集间映射 `q̅ : A →̇ F` 交换, 当且仅当对任意 `a ∈ A` 和 `x ∈ X` 都有 `q ⦅ a ,̇ x ⦆ ≡ e ⦅ q̅ ⦅ a ⦆ ,̇ x ⦆`.
+
+第三步, 定义幂的泛性质: 我们说一个幂图式 `(F , e)` 满足幂的泛性质, 当且仅当对任意幂图式 `(A , q)`, 存在唯一的底集间映射 `q̅ : A →̇ F` 使得它们交换.
+
+![Image](https://pic4.zhimg.com/80/v2-687dfd1332dea8dea293646f54c437c1.png)
+
 ```agda
     -- Definition 2.7.3
     FuncSet : (X Y : CSet) → Arrow
@@ -264,6 +278,8 @@ record Data : Set₁ where
     isFuncSet : Diagram (FuncSet X Y) → Set
     isFuncSet = universal FuncSetCommuter
 ```
+
+**公理 6** 对任意集合 `X Y : CSet`, 存在幂图式满足幂的泛性质.
 
 ```agda
     -- Axiom 6
