@@ -30,7 +30,7 @@ open import Function public using (case_of_) renaming (id to id⒨)
 open import Relation.Binary.PropositionalEquality public
 ```
 
-本文是系列的第一篇, 我们引入 ETCS 的10条公理. 为了表示公理, 首先需要引入 ETCS 的原始概念, 讲义中称它们为资料 (the data), 有的地方也称之为原语 (primitives) , 语言 (language) 或签名 (signature).
+本文是系列的第一篇, 我们引入 ETCS 的10条公理. 为了表述公理, 首先需要引入 ETCS 的原始概念, 讲义中称它们为资料 (the data), 有的地方也称之为原语 (primitives) , 语言 (language) 或签名 (signature).
 
 ## 原始概念
 
