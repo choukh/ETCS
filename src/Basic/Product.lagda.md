@@ -269,7 +269,7 @@ swap-swap = AxFunExt λ p →            begin
       * = pr₂ ⦅ p ⦆ in            begin
   ((id ,̇ !) ∘ pr₁) ∘ p            ≡⟨ AxAss ⟩
   (id ,̇ !) ⦅ x ⦆                  ≡⟨ ,̇-distrib-∘ ⟩
-  id ⦅ x ⦆ ,̇ ! ⦅ x ⦆              ≡⟨ cong₂ _,̇_ AxIdˡ (oneElement-１ .snd) ⟩
+  id ⦅ x ⦆ ,̇ ! ⦅ x ⦆              ≡⟨ cong₂ _,̇_ AxIdˡ (isSingleton-１ .snd) ⟩
   x ,̇ *                           ≡˘⟨ ×̇-η ⟩
   p                               ≡˘⟨ AxIdˡ ⟩
   id ∘ p                          ∎ where open ≡-Reasoning
