@@ -1,3 +1,16 @@
+---
+title: 公理化结构集合论 (4 积)
+zhihu-tags: Agda, 集合论, 范畴论, 数学基础
+---
+
+# 公理化结构集合论 (4 积)
+
+> 交流Q群: 893531731
+> 本文源码: [Product.lagda.md](https://github.com/choukh/ETCS/blob/main/src/Basic/Product.lagda.md)
+> 高亮渲染: [Product.html](https://choukh.github.io/ETCS/Basic.Product.html)
+
+在前面几篇文章中, 我们介绍了 ETCS 中的元素和同构等基本概念. 本篇我们将详细讨论积 (product) 的概念及其性质.
+
 ```agda
 open import Axiom
 module Basic.Product (ℳ : ETCS) where
@@ -8,11 +21,24 @@ open import Basic.Membership ℳ
 open import Function using (_$_)
 ```
 
+首选回顾积的定义. 我们说 `(P , p , q)` 是 `X` 和 `Y` 的积(图式), 当且仅当 `P` 是一个集合, `p : P →̇ X` 和 `q : P →̇ Y` 是两个函数, 并且对于任意集合 `A` 和任意两个函数 `f : A →̇ X` 和 `g : A →̇ Y`, 存在唯一的函数 `h : A →̇ P` 使得 `p ∘ h ≡ f` 和 `q ∘ h ≡ g`.
+
+![积的泛性质定义](https://pic4.zhimg.com/80/v2-2cfcd05207f77e2d965658d158731767.png)
+
+**练习 2.6.4** 如果 `X` 是空集, 那么 `X × Y` 的积也是空集.
+
 ```agda
 -- Exercise 2.6.4
 _ : ((P , _) : Diagram (Product X Y)) → empty X → empty P
-_ = λ (P , p , _) eX q → eX (p ⦅ q ⦆)
+_ = λ (P , px , _) e p → e (px ⦅ p ⦆)
 ```
+
+**引理 2.6.6** 积在同构意义下不变: 给定两个积图式 `(P , p , q)` 和 `(P′ , p′ , q′)`, 假设存在同构 `j : P →̇ P′` 使得以下图式交换:
+
+![积在同构意义下不变]()
+
+那么如果其中一个积图式满足积的泛性质, 那么另一个积图式也满足积的泛性质.
+
 
 ```agda
 -- Lemma 2.6.6
